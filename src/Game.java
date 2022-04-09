@@ -13,7 +13,7 @@ public class Game implements ActionListener {
     public Game() {
         gameBoard = new GameBoard(this);
         boardState = new BoardState();
-        available = new Available();
+        available = new Available(gameBoard, boardState);
         possibleMoves = new ArrayList<>();
         selected = null;
     }
@@ -107,14 +107,21 @@ public class Game implements ActionListener {
         possibleMoves.clear();
         selected = null;
         boardState.nextTurn();
-        if (available.pushAvailable(gameBoard, boardState)) // TODO should skip the turn or end the game?
-            System.out.println("no moves");
+        /*if (!available.pushAvailable(gameBoard, boardState)) TODO Available.java : checkAvailable
+            gameOver(!boardState.isWhiteTurn());*/
     }
 
     private String getFileName(Tile piece) {
         String path = piece.getIcon().toString();
         int index = path.lastIndexOf('\\');
         return path.substring(index + 1);
+    }
+
+    private void gameOver(boolean winner) {
+        if (winner)
+            System.out.println("White won");
+        else
+            System.out.println("Black won");
     }
 
     public BoardState getBoardState() {

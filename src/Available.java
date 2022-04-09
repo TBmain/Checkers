@@ -5,8 +5,8 @@ public class Available extends ArrayList<Tile> {
 
     private boolean take;
 
-    public Available() {
-        super(); // do I need this?
+    public Available(GameBoard gameBoard, BoardState boardState) {
+        pushAvailable(gameBoard, boardState);
     }
 
     public boolean pushAvailable(GameBoard gameBoard, BoardState boardState) {
@@ -27,7 +27,7 @@ public class Available extends ArrayList<Tile> {
         if (take)
             removeNoTake(board);
         if (isEmpty()) return false;
-        else return true;
+        return true;
     }
 
     private void checkAvailable(pieceType[][] board, Tile tile) {
