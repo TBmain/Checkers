@@ -26,21 +26,20 @@ public class Game implements ActionListener {
     private void checkPiece(Tile tile) {
         if (selected != null)
             finishMove(tile);
-        else if (boardState.getBoard()[tile.xGrid()][tile.yGrid()] != null)
-            checkOwnPiece(tile);
+        else if (boardState.getBoard()[tile.xGrid()][tile.yGrid()] != null) {
+            if (checkOwnPiece(tile)) isAvailable(tile);
+            else System.out.println("not your piece");
+        }
         else System.out.println("no piece");
     }
 
-    private void checkOwnPiece(Tile piece) {
-        boolean own = true;
+    private boolean checkOwnPiece(Tile piece) {
         String fileName = getFileName(piece);
         if (boardState.isWhiteTurn() && fileName.contains("dark"))
-            own = false;
-        else if (!boardState.isWhiteTurn() && fileName.contains("light"))
-            own = false;
-        if (own)
-            isAvailable(piece);
-        else System.out.println("not your piece");
+            return false;
+        if (!boardState.isWhiteTurn() && fileName.contains("light"))
+            return false;
+        return true;
     }
 
     private void isAvailable(Tile piece) {
@@ -75,15 +74,15 @@ public class Game implements ActionListener {
             if (fileName.contains("light")) {
                 // not really sure about what's going on with out of bounds indexes
                 // TODO should add a method for checkPossible
-                if (boardState.getBoard()[x + 1][y - 1] == null)
+                if (checkIndex(x + 1, y - 1) && boardState.getBoard()[x + 1][y - 1] == null)
                     possibleMoves.add(gameBoard.getTile(x + 1, y - 1));
-                if (boardState.getBoard()[x - 1][y - 1] == null)
+                if (checkIndex(x - 1, y - 1) && boardState.getBoard()[x - 1][y - 1] == null)
                     possibleMoves.add(gameBoard.getTile(x - 1, y - 1));
             }
             else {
-                if (boardState.getBoard()[x + 1][y + 1] == null)
+                if (checkIndex(x + 1, y + 1) && boardState.getBoard()[x + 1][y + 1] == null)
                     possibleMoves.add(gameBoard.getTile(x + 1, y + 1));
-                if (boardState.getBoard()[x - 1][y + 1] == null)
+                if (checkIndex(x - 1, y + 1) && boardState.getBoard()[x - 1][y + 1] == null)
                     possibleMoves.add(gameBoard.getTile(x - 1, y + 1));
             }
         }
@@ -97,18 +96,26 @@ public class Game implements ActionListener {
     }
 
     private void finishMove(Tile tile) {
-        // TODO first check if tile contains another piece owned by the same player
-        // if it does - unmark, selected = null, possibleMove.clear() and call checkPiece(tile)
-        if (possibleMoves.contains(tile))
+        if (possibleMoves.contains(tile)) {
+            deletePossibleMoves();
+            boardState.getBoard()[tile.xGrid()][tile.yGrid()] = boardState.getBoard()[selected.xGrid()][selected.yGrid()];
+            boardState.getBoard()[selected.xGrid()][selected.yGrid()] = null;
+            draw(tile);
             System.out.println("Move completed");
-        else System.out.println("Can't move to here");
-        // if succeeded to finish the move
-        deletePossibleMoves();
-        possibleMoves.clear();
-        selected = null;
-        boardState.nextTurn();
-        /*if (!available.pushAvailable(gameBoard, boardState)) TODO Available.java : checkAvailable
+            possibleMoves.clear();
+            selected = null;
+            boardState.nextTurn();
+            /*if (!available.pushAvailable(gameBoard, boardState)) TODO Available.java : checkAvailable
             gameOver(!boardState.isWhiteTurn());*/
+        }
+        else if (tile.getIcon() != null && checkOwnPiece(tile) && !available.contains(tile)) { // TODO remove "!" and actually fill "available" somehow
+            deletePossibleMoves();
+            possibleMoves.clear();
+            selected = null;
+            isAvailable(tile);
+        }
+        else System.out.println("Can't move to here");
+
     }
 
     private String getFileName(Tile piece) {
@@ -124,6 +131,10 @@ public class Game implements ActionListener {
             System.out.println("Black won");
     }
 
+    private boolean checkIndex(int x, int y) {
+        return x >= 0 && x <= 7 && y >= 0 && y <= 7;
+    }
+
     public BoardState getBoardState() {
         return boardState;
     }
@@ -132,7 +143,7 @@ public class Game implements ActionListener {
         return gameBoard;
     }
 
-    // TODO remove these two functions and somehow move them to GUI.java - need to rethink this whole thing, maybe Game.java will be the main Object
+    // TODO remove these three functions and somehow move them to GUI.java - need to rethink this whole thing, maybe Game.java will be the main Object
     private void drawPossibleMoves() {
         for (Tile tile : possibleMoves)
             tile.setIcon(new ImageIcon("imgs\\possible move.png"));
@@ -141,5 +152,12 @@ public class Game implements ActionListener {
     private void deletePossibleMoves() {
         for (Tile tile : possibleMoves)
             tile.setIcon(null);
+    }
+
+    private void draw(Tile tile) {
+        System.out.println(selected.getIcon());
+        tile.setIcon(selected.getIcon());
+        System.out.println(tile.getIcon());
+        selected.setIcon(null);
     }
 }

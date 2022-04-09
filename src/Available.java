@@ -30,7 +30,7 @@ public class Available extends ArrayList<Tile> {
         return true;
     }
 
-    private void checkAvailable(pieceType[][] board, Tile tile) {
+    private void checkAvailable(pieceType[][] board, Tile tile) { // TODO use Game.java : use some version of addPossibleMoves and then check its size to know if the piece is available
         // check if piece is available
         // if it's able to take set take to true
         if (take == false)
