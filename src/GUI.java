@@ -67,7 +67,7 @@ public class GUI extends JFrame {
             Tile tile = (Tile) comp;
             if (tile.isVisible()) {
                 pieceType piece = boardState.getBoard()[tile.xGrid()][tile.yGrid()];
-                if(piece != null) {
+                if (piece != null) {
                     switch (piece) {
                         case white:
                             tile.setIcon(whitePiece);

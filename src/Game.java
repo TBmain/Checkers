@@ -5,14 +5,14 @@ import java.util.ArrayList;
 
 public class Game implements ActionListener {
     private GameBoard gameBoard;
-    private BoardState board;
+    private BoardState boardState;
     private Available available;
     private ArrayList<Tile> possibleMoves;
     private Tile selected;
 
     public Game() {
         gameBoard = new GameBoard(this);
-        board = new BoardState();
+        boardState = new BoardState();
         available = new Available();
         possibleMoves = new ArrayList<>();
         selected = null;
@@ -26,7 +26,7 @@ public class Game implements ActionListener {
     private void checkPiece(Tile tile) {
         if (selected != null)
             finishMove(tile);
-        else if (board.getBoard()[tile.xGrid()][tile.yGrid()] != null)
+        else if (boardState.getBoard()[tile.xGrid()][tile.yGrid()] != null)
             checkOwnPiece(tile);
         else System.out.println("no piece");
     }
@@ -34,9 +34,9 @@ public class Game implements ActionListener {
     private void checkOwnPiece(Tile piece) {
         boolean own = true;
         String fileName = getFileName(piece);
-        if (board.isWhiteTurn() && fileName.contains("dark"))
+        if (boardState.isWhiteTurn() && fileName.contains("dark"))
             own = false;
-        else if (!board.isWhiteTurn() && fileName.contains("light"))
+        else if (!boardState.isWhiteTurn() && fileName.contains("light"))
             own = false;
         if (own)
             isAvailable(piece);
@@ -75,15 +75,15 @@ public class Game implements ActionListener {
             if (fileName.contains("light")) {
                 // not really sure about what's going on with out of bounds indexes
                 // TODO should add a method for checkPossible
-                if (board.getBoard()[x + 1][y - 1] == null)
+                if (boardState.getBoard()[x + 1][y - 1] == null)
                     possibleMoves.add(gameBoard.getTile(x + 1, y - 1));
-                if (board.getBoard()[x - 1][y - 1] == null)
+                if (boardState.getBoard()[x - 1][y - 1] == null)
                     possibleMoves.add(gameBoard.getTile(x - 1, y - 1));
             }
             else {
-                if (board.getBoard()[x + 1][y + 1] == null)
+                if (boardState.getBoard()[x + 1][y + 1] == null)
                     possibleMoves.add(gameBoard.getTile(x + 1, y + 1));
-                if (board.getBoard()[x - 1][y + 1] == null)
+                if (boardState.getBoard()[x - 1][y + 1] == null)
                     possibleMoves.add(gameBoard.getTile(x - 1, y + 1));
             }
         }
@@ -106,7 +106,9 @@ public class Game implements ActionListener {
         deletePossibleMoves();
         possibleMoves.clear();
         selected = null;
-        board.nextTurn();
+        boardState.nextTurn();
+        if (available.pushAvailable(gameBoard, boardState)) // TODO should skip the turn or end the game?
+            System.out.println("no moves");
     }
 
     private String getFileName(Tile piece) {
@@ -116,7 +118,7 @@ public class Game implements ActionListener {
     }
 
     public BoardState getBoardState() {
-        return board;
+        return boardState;
     }
 
     public GameBoard getGameBoard() {
