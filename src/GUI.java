@@ -9,7 +9,10 @@ public class GUI extends JFrame {
     private Icon blackPiece;
     private Icon whiteKing;
     private Icon blackKing;
-    private Icon selectedPiece; // TODO should be changed to 4 icons of all pieces selected
+    private Icon selectedWhitePiece;
+    private Icon selectedBlackPiece;
+    private Icon selectedWhiteKing;
+    private Icon selectedBlackKing;
     private Icon possibleMove;
     private Icon lastMove; // TODO same thing as selectedPiece - *another idea is to just use button borders*
 
@@ -41,7 +44,10 @@ public class GUI extends JFrame {
         blackPiece = new ImageIcon("imgs\\dark piece.png");
         whiteKing = new ImageIcon("imgs\\light king.png");
         blackKing = new ImageIcon("imgs\\dark king.png");
-        selectedPiece = new ImageIcon("imgs\\selected piece.png");
+        selectedWhitePiece = new ImageIcon("imgs\\selected white piece.png");
+        selectedBlackPiece = new ImageIcon("imgs\\selected black piece.png");
+        selectedWhiteKing = new ImageIcon("imgs\\selected white king.png");
+        selectedBlackKing = new ImageIcon("imgs\\selected black king.png");
         possibleMove = new ImageIcon("imgs\\possible move.png");
         lastMove = new ImageIcon("imgs\\last move.png");
     }
