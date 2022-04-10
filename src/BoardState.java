@@ -1,10 +1,10 @@
 public class BoardState {
-    private pieceType board[][];
-    private boolean whiteTurn;
+    private PieceType board[][];
+    private Player turn;
 
     public BoardState() {
-        board = new pieceType[8][8];
-        whiteTurn = true;
+        board = new PieceType[8][8];
+        turn = Player.WHITE;
         fillBoard();
     }
 
@@ -12,23 +12,23 @@ public class BoardState {
         for (int x = 0; x < 8; x++)
             for (int y = 0; y < 3; y++)
                 if ((x + y) % 2 != 0)
-                    board[x][y] = pieceType.black;
+                    board[x][y] = new PieceType(Player.BLACK, false);
 
         for (int x = 0; x < 8; x++)
             for (int y = 5; y < 8; y++)
                 if ((x + y) % 2 != 0)
-                    board[x][y] = pieceType.white;
+                    board[x][y] = new PieceType(Player.WHITE, false);
     }
 
-    public pieceType[][] getBoard() {
+    public PieceType[][] getBoard() {
         return board;
     }
 
-    public boolean isWhiteTurn() {
-        return whiteTurn;
+    public Player getTurn() {
+        return turn;
     }
 
     public void nextTurn() {
-        whiteTurn = !whiteTurn;
+        turn = turn.getOpposite();
     }
 }

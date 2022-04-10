@@ -27,19 +27,16 @@ public class Game implements ActionListener {
         if (selected != null)
             finishMove(tile);
         else if (boardState.getBoard()[tile.xGrid()][tile.yGrid()] != null) {
-            if (checkOwnPiece(tile)) isAvailable(tile);
-            else System.out.println("not your piece");
+            if (checkOwnPiece(tile))
+                isAvailable(tile);
+            else
+                System.out.println("not your piece");
         }
         else System.out.println("no piece");
     }
 
     private boolean checkOwnPiece(Tile piece) {
-        String fileName = getFileName(piece);
-        if (boardState.isWhiteTurn() && fileName.contains("dark"))
-            return false;
-        if (!boardState.isWhiteTurn() && fileName.contains("light"))
-            return false;
-        return true;
+        return boardState.getBoard()[piece.xGrid()][piece.yGrid()].getPlayer() == boardState.getTurn();
     }
 
     private void isAvailable(Tile piece) {
@@ -63,28 +60,17 @@ public class Game implements ActionListener {
     private void addPossibleMoves(Tile piece) { // currently no check for off boundaries (ArrayIndexOutOfBoundsException)
         int x = piece.xGrid();
         int y = piece.yGrid();
-        String fileName = getFileName(piece);
-        if (fileName.contains("king")) {
+
+        if (boardState.getBoard()[x][y].isKing()) {
             // king case - 4 directions to check
-            if (fileName.contains("light"));
-            else ;
         }
         else {
-            // normal piece - 2 directions to check
-            if (fileName.contains("light")) {
-                // not really sure about what's going on with out of bounds indexes
-                // TODO should add a method for checkPossible
-                if (checkIndex(x + 1, y - 1) && boardState.getBoard()[x + 1][y - 1] == null)
-                    possibleMoves.add(gameBoard.getTile(x + 1, y - 1));
-                if (checkIndex(x - 1, y - 1) && boardState.getBoard()[x - 1][y - 1] == null)
-                    possibleMoves.add(gameBoard.getTile(x - 1, y - 1));
-            }
-            else {
-                if (checkIndex(x + 1, y + 1) && boardState.getBoard()[x + 1][y + 1] == null)
-                    possibleMoves.add(gameBoard.getTile(x + 1, y + 1));
-                if (checkIndex(x - 1, y + 1) && boardState.getBoard()[x - 1][y + 1] == null)
-                    possibleMoves.add(gameBoard.getTile(x - 1, y + 1));
-            }
+            int dy = (boardState.getTurn() == Player.WHITE) ? -1 : +1;
+
+            if (checkIndex(x + 1, y + dy) && boardState.getBoard()[x + 1][y + dy] == null)
+                possibleMoves.add(gameBoard.getTile(x + 1, y + dy));
+            if (checkIndex(x - 1, y + dy) && boardState.getBoard()[x - 1][y + dy] == null)
+                possibleMoves.add(gameBoard.getTile(x - 1, y + dy));
         }
         drawPossibleMoves();
     }
@@ -116,12 +102,6 @@ public class Game implements ActionListener {
         }
         else System.out.println("Can't move to here");
 
-    }
-
-    private String getFileName(Tile piece) {
-        String path = piece.getIcon().toString();
-        int index = path.lastIndexOf('\\');
-        return path.substring(index + 1);
     }
 
     private void gameOver(boolean winner) {

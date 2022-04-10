@@ -66,21 +66,19 @@ public class GUI extends JFrame {
         for (Component comp : gameBoard.getComponents()) {
             Tile tile = (Tile) comp;
             if (tile.isVisible()) {
-                pieceType piece = boardState.getBoard()[tile.xGrid()][tile.yGrid()];
+                PieceType piece = boardState.getBoard()[tile.xGrid()][tile.yGrid()];
                 if (piece != null) {
-                    switch (piece) {
-                        case white:
-                            tile.setIcon(whitePiece);
-                            break;
-                        case black:
-                            tile.setIcon(blackPiece);
-                            break;
-                        case whiteKing:
+                    if (piece.getPlayer() == Player.WHITE) {
+                        if (piece.isKing())
                             tile.setIcon(whiteKing);
-                            break;
-                        case blackKing:
+                        else
+                            tile.setIcon(whitePiece);
+                    }
+                    else {
+                        if (piece.isKing())
                             tile.setIcon(blackKing);
-                            break;
+                        else
+                            tile.setIcon(blackPiece);
                     }
                 }
             }
