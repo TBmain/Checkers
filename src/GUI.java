@@ -1,7 +1,10 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
-public class GUI extends JFrame {
+public class GUI extends JFrame implements ActionListener {
 
     // Images
     private Icon background;
@@ -20,6 +23,7 @@ public class GUI extends JFrame {
     private JLabel board;
     private GameBoard gameBoard;
     private BoardState boardState;
+    private ArrayList<Coordinates> possibleMoves;
 
     public GUI() {
         setTitle("Checkers Project - Nadav Barak");
@@ -44,19 +48,20 @@ public class GUI extends JFrame {
         blackPiece = new ImageIcon("imgs\\dark piece.png");
         whiteKing = new ImageIcon("imgs\\light king.png");
         blackKing = new ImageIcon("imgs\\dark king.png");
-        selectedWhitePiece = new ImageIcon("imgs\\selected white piece.png");
-        selectedBlackPiece = new ImageIcon("imgs\\selected black piece.png");
-        selectedWhiteKing = new ImageIcon("imgs\\selected white king.png");
-        selectedBlackKing = new ImageIcon("imgs\\selected black king.png");
+        selectedWhitePiece = new ImageIcon("imgs\\selected light piece.png");
+        selectedBlackPiece = new ImageIcon("imgs\\selected dark piece.png");
+        selectedWhiteKing = new ImageIcon("imgs\\selected light king.png");
+        selectedBlackKing = new ImageIcon("imgs\\selected dark king.png");
         possibleMove = new ImageIcon("imgs\\possible move.png");
         lastMove = new ImageIcon("imgs\\last move.png");
     }
 
     private void setupFrame() {
         game = new Game();
-        gameBoard = game.getGameBoard();
+        gameBoard = new GameBoard(this);
         boardState = game.getBoardState();
         board = new JLabel(background);
+        possibleMoves = new ArrayList<>();
         getContentPane().add(board);
         board.add(gameBoard);
         board.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
@@ -87,7 +92,50 @@ public class GUI extends JFrame {
                             tile.setIcon(blackPiece);
                     }
                 }
+                else tile.setIcon(null);
             }
         }
+    }
+
+    private void draw() {
+        for (Coordinates c : possibleMoves)
+            gameBoard.getTile(c.getX(), c.getY()).setIcon(null);
+
+        possibleMoves.clear();
+        possibleMoves.addAll(game.getPossibleMoves());
+
+        drawPieces();
+
+        for (Coordinates c : possibleMoves)
+            gameBoard.getTile(c.getX(), c.getY()).setIcon(possibleMove);
+    }
+
+    private void mark(Tile tile) {
+        PieceType piece = boardState.getBoard()[tile.xGrid()][tile.yGrid()];
+        Player p = piece.getPlayer();
+        if (piece != null && piece.getPlayer() == boardState.getTurn()) {
+            switch(p) {
+                case WHITE:
+                    if (tile.getIcon() == whitePiece)
+                        tile.setIcon(selectedWhitePiece);
+                    else
+                        tile.setIcon(selectedWhiteKing);
+                    break;
+                case BLACK:
+                    if (tile.getIcon() == blackPiece)
+                        tile.setIcon(selectedBlackPiece);
+                    else
+                        tile.setIcon(selectedBlackKing);
+                    break;
+            }
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        Tile tile = (Tile) e.getSource();
+        game.checkPiece(game.getBoardState().getCoordinates()[tile.xGrid()][tile.yGrid()]);
+        draw();
+        mark(tile);
     }
 }

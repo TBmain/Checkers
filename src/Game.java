@@ -1,65 +1,59 @@
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 
-public class Game implements ActionListener {
-    private GameBoard gameBoard;
+public class Game {
     private BoardState boardState;
     private Available available;
-    private ArrayList<Tile> possibleMoves;
-    private Tile selected;
+    private ArrayList<Coordinates> possibleMoves;
+    private Coordinates selected;
 
     public Game() {
-        gameBoard = new GameBoard(this);
         boardState = new BoardState();
-        available = new Available(gameBoard, boardState);
+        available = new Available(boardState);
         possibleMoves = new ArrayList<>();
         selected = null;
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        checkPiece((Tile) e.getSource());
-    }
-
-    private void checkPiece(Tile tile) {
+    public void checkPiece(Coordinates c) {
         if (selected != null)
-            finishMove(tile);
-        else if (boardState.getBoard()[tile.xGrid()][tile.yGrid()] != null) {
-            if (checkOwnPiece(tile))
-                isAvailable(tile);
+            finishMove(c);
+        else if (boardState.getBoard()[c.getX()][c.getY()] != null) {
+            if (checkOwnPiece(c))
+                isAvailable(c);
             else
                 System.out.println("not your piece");
         }
         else System.out.println("no piece");
     }
 
-    private boolean checkOwnPiece(Tile piece) {
-        return boardState.getBoard()[piece.xGrid()][piece.yGrid()].getPlayer() == boardState.getTurn();
+    private boolean checkOwnPiece(Coordinates c) {
+        return boardState.getBoard()[c.getX()][c.getY()].getPlayer() == boardState.getTurn();
     }
 
-    private void isAvailable(Tile piece) {
+    private void isAvailable(Coordinates c) {
         System.out.println("you own this piece");
-        if (!available.contains(piece)) { // TODO remove "!" and actually fill "available" somehow
-            mark(piece);
-            addPossibleMoves(piece);
+        if (!available.contains(c)) { // TODO remove "!" and actually fill "available" somehow
+            mark(c);
+            addPossibleMoves(c);
         }
         else System.out.println("can't move this piece");
         // check if the piece selected is one of the pieces in the arraylist
         // if it does, call mark
     }
 
-    private void mark(Tile piece) {
-        if (selected != null) unmark(selected);
-        selected = piece;
+    private void mark(Coordinates c) {
+        if (selected != null) /*unmark(selected)*/ System.out.println("sus");;
+        selected = c;
         // mark the piece and the possible moves
-        System.out.println("Piece: " + piece.getName());
+        System.out.println("Piece: (" + c.getX() + ", " + c.getY() + ")");
     }
 
-    private void addPossibleMoves(Tile piece) { // currently no check for off boundaries (ArrayIndexOutOfBoundsException)
-        int x = piece.xGrid();
-        int y = piece.yGrid();
+    private void addPossibleMoves(Coordinates c) { // currently no check for off boundaries (ArrayIndexOutOfBoundsException)
+        int x = c.getX();
+        int y = c.getY();
 
         if (boardState.getBoard()[x][y].isKing()) {
             // king case - 4 directions to check
@@ -68,25 +62,25 @@ public class Game implements ActionListener {
             int dy = (boardState.getTurn() == Player.WHITE) ? -1 : +1;
 
             if (checkIndex(x + 1, y + dy) && boardState.getBoard()[x + 1][y + dy] == null)
-                possibleMoves.add(gameBoard.getTile(x + 1, y + dy));
+                possibleMoves.add(boardState.getCoordinates()[x + 1][y + dy]);
             if (checkIndex(x - 1, y + dy) && boardState.getBoard()[x - 1][y + dy] == null)
-                possibleMoves.add(gameBoard.getTile(x - 1, y + dy));
+                possibleMoves.add(boardState.getCoordinates()[x - 1][y + dy]);
         }
-        drawPossibleMoves();
+        // drawPossibleMoves();
     }
 
     private void unmark(Tile piece) {
         // unmark the selected piece and possible moves
-        deletePossibleMoves();
+        //deletePossibleMoves();
         possibleMoves.clear();
     }
 
-    private void finishMove(Tile tile) {
-        if (possibleMoves.contains(tile)) {
-            deletePossibleMoves();
-            boardState.getBoard()[tile.xGrid()][tile.yGrid()] = boardState.getBoard()[selected.xGrid()][selected.yGrid()];
-            boardState.getBoard()[selected.xGrid()][selected.yGrid()] = null;
-            draw(tile);
+    private void finishMove(Coordinates c) {
+        if (possibleMoves.contains(c)) {
+            //deletePossibleMoves();
+            boardState.getBoard()[c.getX()][c.getY()] = boardState.getBoard()[selected.getX()][selected.getY()];
+            boardState.getBoard()[selected.getX()][selected.getY()] = null;
+            //draw(tile);
             System.out.println("Move completed");
             possibleMoves.clear();
             selected = null;
@@ -94,14 +88,13 @@ public class Game implements ActionListener {
             /*if (!available.pushAvailable(gameBoard, boardState)) TODO Available.java : checkAvailable
             gameOver(!boardState.isWhiteTurn());*/
         }
-        else if (tile.getIcon() != null && checkOwnPiece(tile) && !available.contains(tile)) { // TODO remove "!" and actually fill "available" somehow
-            deletePossibleMoves();
+        else if (boardState.getBoard()[c.getX()][c.getY()] != null && checkOwnPiece(c) && !available.contains(c)) { // TODO remove "!" and actually fill "available" somehow
+            //deletePossibleMoves();
             possibleMoves.clear();
             selected = null;
-            isAvailable(tile);
+            isAvailable(c);
         }
         else System.out.println("Can't move to here");
-
     }
 
     private void gameOver(boolean winner) {
@@ -119,25 +112,7 @@ public class Game implements ActionListener {
         return boardState;
     }
 
-    public GameBoard getGameBoard() {
-        return gameBoard;
-    }
-
-    // TODO remove these three functions and somehow move them to GUI.java - need to rethink this whole thing, maybe Game.java will be the main Object
-    private void drawPossibleMoves() {
-        for (Tile tile : possibleMoves)
-            tile.setIcon(new ImageIcon("imgs\\possible move.png"));
-    }
-
-    private void deletePossibleMoves() {
-        for (Tile tile : possibleMoves)
-            tile.setIcon(null);
-    }
-
-    private void draw(Tile tile) {
-        System.out.println(selected.getIcon());
-        tile.setIcon(selected.getIcon());
-        System.out.println(tile.getIcon());
-        selected.setIcon(null);
+    public ArrayList<Coordinates> getPossibleMoves() {
+        return possibleMoves;
     }
 }
