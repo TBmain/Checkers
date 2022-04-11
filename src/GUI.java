@@ -134,7 +134,7 @@ public class GUI extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         Tile tile = (Tile) e.getSource();
-        game.checkPiece(game.getCoordinates()[tile.xGrid()][tile.yGrid()]);
+        game.checkPiece(boardState.getCoordinates()[tile.xGrid()][tile.yGrid()]);
         draw();
 
         Coordinates c = game.getSelected();
