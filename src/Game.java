@@ -6,28 +6,28 @@ import java.util.ArrayList;
 
 public class Game {
     private BoardState boardState;
+    private Coordinates[][] coordinates;
     private Available available;
     private ArrayList<Coordinates> possibleMoves;
-    private Coordinates[][] coordinates;
     private Coordinates selected;
 
     public Game() {
         boardState = new BoardState();
-        available = new Available(boardState);
-        possibleMoves = new ArrayList<>();
         coordinates = fill();
+        available = new Available(this);
+        possibleMoves = new ArrayList<>();
         selected = null;
     }
 
     public void checkPiece(Coordinates c) {
-        if (selected != null)
-            finishMove(c);
-        else if (boardState.getBoard()[c.getX()][c.getY()] != null) {
+        if (boardState.getBoard()[c.getX()][c.getY()] != null) {
             if (checkOwnPiece(c))
                 isAvailable(c);
             else
                 System.out.println("not your piece");
         }
+        else if (selected != null)
+            finishMove(c);
         else System.out.println("no piece");
     }
 
@@ -37,8 +37,9 @@ public class Game {
 
     private void isAvailable(Coordinates c) {
         System.out.println("you own this piece");
-        if (!available.contains(c)) { // TODO remove "!" and actually fill "available" somehow
+        if (available.contains(c)) {
             selected = c;
+            possibleMoves.clear();
             addPossibleMoves(c);
         }
         else System.out.println("can't move this piece");
@@ -46,7 +47,7 @@ public class Game {
         // if it does, call mark
     }
 
-    private void addPossibleMoves(Coordinates c) { // currently no check for off boundaries (ArrayIndexOutOfBoundsException)
+    private void addPossibleMoves(Coordinates c) {
         int x = c.getX();
         int y = c.getY();
 
@@ -71,19 +72,15 @@ public class Game {
             possibleMoves.clear();
             selected = null;
             boardState.nextTurn();
-            /*if (!available.pushAvailable(gameBoard, boardState)) TODO Available.java : checkAvailable
-            gameOver(!boardState.isWhiteTurn());*/
-        }
-        else if (boardState.getBoard()[c.getX()][c.getY()] != null && checkOwnPiece(c) && !available.contains(c)) { // TODO remove "!" and actually fill "available" somehow
-            possibleMoves.clear();
-            selected = null;
-            isAvailable(c);
+            available.setAvailable(this);
+            if (!available.setAvailable(this))
+                gameOver(boardState.getTurn().getOpposite());
         }
         else System.out.println("Can't move to here");
     }
 
-    private void gameOver(boolean winner) {
-        if (winner)
+    private void gameOver(Player winner) {
+        if (winner == Player.WHITE)
             System.out.println("White won");
         else
             System.out.println("Black won");
