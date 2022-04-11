@@ -112,8 +112,8 @@ public class GUI extends JFrame implements ActionListener {
 
     private void mark(Tile tile) {
         PieceType piece = boardState.getBoard()[tile.xGrid()][tile.yGrid()];
-        Player p = piece.getPlayer();
         if (piece != null && piece.getPlayer() == boardState.getTurn()) {
+            Player p = piece.getPlayer();
             switch(p) {
                 case WHITE:
                     if (tile.getIcon() == whitePiece)
@@ -134,8 +134,11 @@ public class GUI extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         Tile tile = (Tile) e.getSource();
-        game.checkPiece(game.getBoardState().getCoordinates()[tile.xGrid()][tile.yGrid()]);
+        game.checkPiece(game.getCoordinates()[tile.xGrid()][tile.yGrid()]);
         draw();
-        mark(tile);
+
+        Coordinates c = game.getSelected();
+        if (c != null)
+            mark(gameBoard.getTile(c.getX(), c.getY()));
     }
 }

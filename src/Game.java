@@ -8,12 +8,14 @@ public class Game {
     private BoardState boardState;
     private Available available;
     private ArrayList<Coordinates> possibleMoves;
+    private Coordinates[][] coordinates;
     private Coordinates selected;
 
     public Game() {
         boardState = new BoardState();
         available = new Available(boardState);
         possibleMoves = new ArrayList<>();
+        coordinates = fill();
         selected = null;
     }
 
@@ -36,19 +38,12 @@ public class Game {
     private void isAvailable(Coordinates c) {
         System.out.println("you own this piece");
         if (!available.contains(c)) { // TODO remove "!" and actually fill "available" somehow
-            mark(c);
+            selected = c;
             addPossibleMoves(c);
         }
         else System.out.println("can't move this piece");
         // check if the piece selected is one of the pieces in the arraylist
         // if it does, call mark
-    }
-
-    private void mark(Coordinates c) {
-        if (selected != null) /*unmark(selected)*/ System.out.println("sus");;
-        selected = c;
-        // mark the piece and the possible moves
-        System.out.println("Piece: (" + c.getX() + ", " + c.getY() + ")");
     }
 
     private void addPossibleMoves(Coordinates c) { // currently no check for off boundaries (ArrayIndexOutOfBoundsException)
@@ -62,25 +57,16 @@ public class Game {
             int dy = (boardState.getTurn() == Player.WHITE) ? -1 : +1;
 
             if (checkIndex(x + 1, y + dy) && boardState.getBoard()[x + 1][y + dy] == null)
-                possibleMoves.add(boardState.getCoordinates()[x + 1][y + dy]);
+                possibleMoves.add(getCoordinates()[x + 1][y + dy]);
             if (checkIndex(x - 1, y + dy) && boardState.getBoard()[x - 1][y + dy] == null)
-                possibleMoves.add(boardState.getCoordinates()[x - 1][y + dy]);
+                possibleMoves.add(getCoordinates()[x - 1][y + dy]);
         }
-        // drawPossibleMoves();
-    }
-
-    private void unmark(Tile piece) {
-        // unmark the selected piece and possible moves
-        //deletePossibleMoves();
-        possibleMoves.clear();
     }
 
     private void finishMove(Coordinates c) {
         if (possibleMoves.contains(c)) {
-            //deletePossibleMoves();
             boardState.getBoard()[c.getX()][c.getY()] = boardState.getBoard()[selected.getX()][selected.getY()];
             boardState.getBoard()[selected.getX()][selected.getY()] = null;
-            //draw(tile);
             System.out.println("Move completed");
             possibleMoves.clear();
             selected = null;
@@ -89,7 +75,6 @@ public class Game {
             gameOver(!boardState.isWhiteTurn());*/
         }
         else if (boardState.getBoard()[c.getX()][c.getY()] != null && checkOwnPiece(c) && !available.contains(c)) { // TODO remove "!" and actually fill "available" somehow
-            //deletePossibleMoves();
             possibleMoves.clear();
             selected = null;
             isAvailable(c);
@@ -108,11 +93,27 @@ public class Game {
         return x >= 0 && x <= 7 && y >= 0 && y <= 7;
     }
 
+    private Coordinates[][] fill() {
+        Coordinates[][] c = new Coordinates[8][8];
+        for (int x = 0; x < 8; x++)
+            for (int y = 0; y < 8; y++)
+                c[x][y] = new Coordinates(x, y);
+        return c;
+    }
+
     public BoardState getBoardState() {
         return boardState;
     }
 
     public ArrayList<Coordinates> getPossibleMoves() {
         return possibleMoves;
+    }
+
+    public Coordinates[][] getCoordinates() {
+        return coordinates;
+    }
+
+    public Coordinates getSelected() {
+        return selected;
     }
 }
