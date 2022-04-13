@@ -9,12 +9,14 @@ public class Game {
     private Available available;
     private ArrayList<Coordinates> possibleMoves;
     private Coordinates selected;
+    private boolean combo;
 
     public Game() {
         boardState = new BoardState();
         available = new Available(boardState);
         possibleMoves = new ArrayList<>();
         selected = null;
+        combo = false;
     }
 
     public void checkPiece(Coordinates c) {
@@ -38,23 +40,29 @@ public class Game {
         if (available.contains(c)) {
             selected = c;
             possibleMoves.clear();
-            possibleMoves = boardState.getPossibleMoves(c);
+            possibleMoves = boardState.getPossibleMoves(c, combo);
         }
         else System.out.println("can't move this piece");
-        // check if the piece selected is one of the pieces in the arraylist
-        // if it does, call mark
     }
 
     private void finishMove(Coordinates c) {
         if (possibleMoves.contains(c)) {
-            boardState.getBoard()[c.getX()][c.getY()] = boardState.getBoard()[selected.getX()][selected.getY()];
-            boardState.getBoard()[selected.getX()][selected.getY()] = null;
+            boardState.move(selected, c);
             System.out.println("Move completed");
             possibleMoves.clear();
-            selected = null;
-            boardState.nextTurn();
-            if (!available.setAvailable(boardState))
-                gameOver(boardState.getTurn().getOpposite());
+            available.clear();
+            if (boardState.getJump()) {
+                selected = c;
+                possibleMoves = boardState.getPossibleMoves(selected, combo = true);
+            }
+            if (possibleMoves.size() == 0) {
+                selected = null;
+                combo = false;
+                boardState.nextTurn();
+                if (!available.setAvailable(boardState))
+                    gameOver(boardState.getTurn().getOpposite());
+            }
+            else available.add(selected);
         }
         else System.out.println("Can't move to here");
     }

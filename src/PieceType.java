@@ -11,6 +11,10 @@ public class PieceType {
         return p;
     }
 
+    public void setKing() {
+        king = true;
+    }
+
     public boolean isKing() {
         return king;
     }
