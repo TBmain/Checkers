@@ -44,26 +44,41 @@ public class BoardState {
         int y = c.getY();
 
         if (getBoard()[x][y].isKing()) {
-            // king case - 4 directions to check
+            possibleMoves.addAll(getKingMoves(c));
         }
         else {
             int dy = (getTurn() == Player.WHITE) ? -1 : +1;
-            Coordinates move;
+            ArrayList<Coordinates> move;
             if ((move = checkMove(c, 1, dy)) != null)
-                possibleMoves.add(move);
+                possibleMoves.addAll(move);
             if ((move = checkMove(c, -1, dy)) != null)
-                possibleMoves.add(move);
+                possibleMoves.addAll(move);
             if (combo) {
                 if ((move = checkMove(c, 1, -dy)) != null)
-                    possibleMoves.add(move);
+                    possibleMoves.addAll(move);
                 if ((move = checkMove(c, -1, -dy)) != null)
-                    possibleMoves.add(move);
+                    possibleMoves.addAll(move);
             }
         }
         return possibleMoves;
     }
 
-    private Coordinates checkMove(Coordinates c, int dx, int dy) {
+    private ArrayList<Coordinates> getKingMoves(Coordinates c) {
+        ArrayList<Coordinates> possibleMoves = new ArrayList<>();
+        ArrayList<Coordinates> moves;
+        if ((moves = checkMove(c, 1, 1)) != null)
+            possibleMoves.addAll(moves);
+        if ((moves = checkMove(c, 1, -1)) != null)
+            possibleMoves.addAll(moves);
+        if ((moves = checkMove(c, -1, 1)) != null)
+            possibleMoves.addAll(moves);
+        if ((moves = checkMove(c, -1, -1)) != null)
+            possibleMoves.addAll(moves);
+        return possibleMoves;
+    }
+
+    private ArrayList<Coordinates> checkMove(Coordinates c, int dx, int dy) {
+        ArrayList<Coordinates> possibleMoves = new ArrayList<>();
         int x = c.getX();
         int y = c.getY();
 
@@ -71,24 +86,45 @@ public class BoardState {
             return null;
 
         if (jump) {
-            if (getBoard()[x + dx][y + dy] != null) {
+            if (getBoard()[x][y].isKing()) {
+                int i = 1;
+                while (checkIndex(x + i * dx, y + i * dy) && getBoard()[x + i * dx][y + i * dy] == null)
+                    i++;
+                if (checkIndex(x + i * dx, y + i * dy)) {
+                    if (getBoard()[x + i * dx][y + i * dy].getPlayer() == getTurn().getOpposite()) {
+                        while (checkIndex(x + (i + 1) * dx, y + (i + 1) * dy) && getBoard()[x + (i + 1) * dx][y + (i + 1) * dy] ==  null) {
+                            possibleMoves.add(getCoordinates()[x + (i + 1) * dx][y + (i + 1) * dy]);
+                            i++;
+                        }
+                    }
+                }
+            }
+            else if (getBoard()[x + dx][y + dy] != null) {
                 if (getBoard()[x + dx][y + dy].getPlayer() == getTurn().getOpposite()) {
                     if (checkIndex(x + 2 * dx, y + 2 * dy) && getBoard()[x + 2 * dx][y + 2 * dy] == null)
-                        return getCoordinates()[x + 2 * dx][y + 2 * dy];
+                        possibleMoves.add(getCoordinates()[x + 2 * dx][y + 2 * dy]);
                 }
+            }
+        }
+        else if (getBoard()[x][y].isKing()) {
+            int i = 1;
+            while (checkIndex(x + i * dx, y + i * dy) && getBoard()[x + i * dx][y + i * dy] == null) {
+                possibleMoves.add(getCoordinates()[x + i * dx][y + i * dy]);
+                i++;
             }
         }
         else {
             if (getBoard()[x + dx][y + dy] == null)
-                return getCoordinates()[x + dx][y + dy];
+                possibleMoves.add(getCoordinates()[x + dx][y + dy]);
         }
-
-        return null;
+        return possibleMoves;
     }
 
     public void move(Coordinates from, Coordinates to) {
         getBoard()[to.getX()][to.getY()] = getBoard()[from.getX()][from.getY()];
         getBoard()[from.getX()][from.getY()] = null;
+
+        makeKing(to);
 
         int distance = Math.abs(to.getX() - from.getX());
         int dx = (to.getX() - from.getX()) / distance;
@@ -102,6 +138,15 @@ public class BoardState {
         return x >= 0 && x <= 7 && y >= 0 && y <= 7;
     }
 
+    private void makeKing(Coordinates c) {
+        PieceType piece = getBoard()[c.getX()][c.getY()];
+        if (!piece.isKing()) {
+            if (piece.getPlayer() == Player.WHITE && c.getY() == 0)
+                piece.setKing();
+            else if (piece.getPlayer() == Player.BLACK && c.getY() == 7)
+                piece.setKing();
+        }
+    }
     public PieceType[][] getBoard() {
         return board;
     }

@@ -1,8 +1,6 @@
-import java.awt.*;
 import java.util.ArrayList;
 
 public class Available extends ArrayList<Coordinates> {
-
     public Available(BoardState boardState) {
         setAvailable(boardState);
     }
@@ -29,15 +27,5 @@ public class Available extends ArrayList<Coordinates> {
     private void checkAvailable(BoardState boardState, Coordinates c) { // TODO use Game.java : use some version of addPossibleMoves and then check its size to know if the piece is available
         if (boardState.getPossibleMoves(c, false).size() > 0)
             add(c);
-    }
-
-    private boolean checkTake(PieceType[][] board, Coordinates c) {
-        return false;
-    }
-
-    private void removeNoTake(PieceType[][] board) {
-        for (Coordinates c : this)
-            if (checkTake(board, c))
-                remove(c);
     }
 }
