@@ -167,8 +167,11 @@ public class BoardState {
         return coordinates;
     }
 
-    public void nextTurn() {
+    public Comment nextTurn() {
         turn = turn.getOpposite();
         jump = true;
+        if (turn == Player.WHITE)
+            return Comment.WHITE;
+        return Comment.BLACK;
     }
 }

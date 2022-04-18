@@ -20,10 +20,11 @@ public class GUI extends JFrame implements ActionListener {
     private Icon lastMove; // TODO same thing as selectedPiece - *another idea is to just use button borders*
 
     private Game game;
-    private JLabel board;
     private GameBoard gameBoard;
     private BoardState boardState;
     private ArrayList<Coordinates> possibleMoves;
+    private JLabel board;
+    private JTextArea comment;
 
     public GUI() {
         setTitle("Checkers Project - Nadav Barak");
@@ -57,14 +58,34 @@ public class GUI extends JFrame implements ActionListener {
     }
 
     private void setupFrame() {
+        getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
+
         game = new Game();
         gameBoard = new GameBoard(this);
         boardState = game.getBoardState();
-        board = new JLabel(background);
         possibleMoves = new ArrayList<>();
-        getContentPane().add(board);
-        board.add(gameBoard);
+
+        board = new JLabel(background);
         board.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        board.add(gameBoard);
+
+        JPanel boardPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        boardPanel.add(board);
+
+        comment = new JTextArea(game.getComment());
+        comment.setFont(new Font("Verdana", Font.PLAIN, 14));
+        comment.setBackground(null);
+        comment.setEditable(false);
+        comment.setLineWrap(false);
+        comment.setWrapStyleWord(true);
+        comment.setAutoscrolls(true);
+
+        JPanel commentPanel = new JPanel();
+        commentPanel.add(comment);
+
+        getContentPane().add(boardPanel);
+        getContentPane().add(commentPanel);
+
         pack();
         // System.out.println(getWidth() + " | " + getHeight());
         setDefaultCloseOperation(this.EXIT_ON_CLOSE);
@@ -140,5 +161,7 @@ public class GUI extends JFrame implements ActionListener {
         Coordinates c = game.getSelected();
         if (c != null)
             mark(gameBoard.getTile(c.getX(), c.getY()));
+
+        comment.setText(game.getComment());
     }
 }

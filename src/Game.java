@@ -10,6 +10,7 @@ public class Game {
     private ArrayList<Coordinates> possibleMoves;
     private Coordinates selected;
     private boolean combo;
+    private Comment comment;
 
     public Game() {
         boardState = new BoardState();
@@ -17,6 +18,7 @@ public class Game {
         possibleMoves = new ArrayList<>();
         selected = null;
         combo = false;
+        comment = Comment.WHITE;
     }
 
     public void checkPiece(Coordinates c) {
@@ -24,11 +26,10 @@ public class Game {
             if (checkOwnPiece(c))
                 isAvailable(c);
             else
-                System.out.println("not your piece");
+                comment = Comment.NOT_OWN_PIECE;
         }
         else if (selected != null)
             finishMove(c);
-        else System.out.println("no piece");
     }
 
     private boolean checkOwnPiece(Coordinates c) {
@@ -36,19 +37,18 @@ public class Game {
     }
 
     private void isAvailable(Coordinates c) {
-        System.out.println("you own this piece");
         if (available.contains(c)) {
             selected = c;
             possibleMoves.clear();
             possibleMoves = boardState.getPossibleMoves(c, combo);
+            comment = Comment.NO_COMMENT;
         }
-        else System.out.println("can't move this piece");
+        else comment = Comment.NOT_AVAILABLE;
     }
 
     private void finishMove(Coordinates c) {
         if (possibleMoves.contains(c)) {
             boardState.move(selected, c);
-            System.out.println("Move completed");
             possibleMoves.clear();
             available.clear();
             if (boardState.getJump()) {
@@ -58,20 +58,21 @@ public class Game {
             if (possibleMoves.size() == 0) {
                 selected = null;
                 combo = false;
-                boardState.nextTurn();
+                comment = boardState.nextTurn();
                 if (!available.setAvailable(boardState))
                     gameOver(boardState.getTurn().getOpposite());
             }
             else available.add(selected);
         }
-        else System.out.println("Can't move to here");
+        else comment = Comment.NOT_POSSIBLE;
     }
 
     private void gameOver(Player winner) {
         if (winner == Player.WHITE)
-            System.out.println("White won");
+            comment = Comment.WHITE_WON;
         else
-            System.out.println("Black won");
+            comment = Comment.BLACK_WON;
+        // TODO tie
     }
 
     public BoardState getBoardState() {
@@ -84,5 +85,9 @@ public class Game {
 
     public Coordinates getSelected() {
         return selected;
+    }
+
+    public String getComment() {
+        return comment.toString();
     }
 }
