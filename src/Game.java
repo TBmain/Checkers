@@ -11,6 +11,7 @@ public class Game {
     private Coordinates selected;
     private boolean combo;
     private Comment comment;
+    private boolean active;
 
     public Game() {
         boardState = new BoardState();
@@ -19,6 +20,7 @@ public class Game {
         selected = null;
         combo = false;
         comment = Comment.WHITE;
+        active = true;
     }
 
     public void checkPiece(Coordinates c) {
@@ -59,7 +61,7 @@ public class Game {
                 selected = null;
                 combo = false;
                 comment = boardState.nextTurn();
-                if (!available.setAvailable(boardState))
+                if (available.setAvailable(boardState))
                     gameOver(boardState.getTurn().getOpposite());
             }
             else available.add(selected);
@@ -73,6 +75,7 @@ public class Game {
         else
             comment = Comment.BLACK_WON;
         // TODO tie
+        active = false;
     }
 
     public BoardState getBoardState() {
@@ -89,5 +92,9 @@ public class Game {
 
     public String getComment() {
         return comment.toString();
+    }
+
+    public boolean isActive() {
+        return active;
     }
 }

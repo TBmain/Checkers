@@ -59,7 +59,35 @@ public class GUI extends JFrame implements ActionListener {
 
     private void setupFrame() {
         getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
+        setupMenu();
+        setupBoard();
+        setupComments();
+        pack();
+        setDefaultCloseOperation(this.EXIT_ON_CLOSE);
+        setResizable(false);
+        setLocationRelativeTo(null); // window centered to the screen
+        setVisible(true);
+    }
 
+    private void setupMenu() {
+        JMenuBar menu = new JMenuBar();
+        menu.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        JMenu options = new JMenu("Options");
+        menu.add(options);
+
+        JMenuItem restart = new JMenuItem("Restart");
+        JMenuItem undo = new JMenuItem("Undo");
+
+        options.add(restart);
+        options.add(undo);
+
+        restart.addActionListener(e -> System.out.println("game.restart()"));
+        undo.addActionListener(e -> System.out.println("game.undo()"));
+
+        getContentPane().add(menu);
+    }
+
+    private void setupBoard() {
         game = new Game();
         gameBoard = new GameBoard(this);
         boardState = game.getBoardState();
@@ -72,6 +100,10 @@ public class GUI extends JFrame implements ActionListener {
         JPanel boardPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         boardPanel.add(board);
 
+        getContentPane().add(boardPanel);
+    }
+
+    private void setupComments() {
         comment = new JTextArea(game.getComment());
         comment.setFont(new Font("Verdana", Font.PLAIN, 14));
         comment.setBackground(null);
@@ -83,15 +115,7 @@ public class GUI extends JFrame implements ActionListener {
         JPanel commentPanel = new JPanel();
         commentPanel.add(comment);
 
-        getContentPane().add(boardPanel);
         getContentPane().add(commentPanel);
-
-        pack();
-        // System.out.println(getWidth() + " | " + getHeight());
-        setDefaultCloseOperation(this.EXIT_ON_CLOSE);
-        setResizable(false);
-        setLocationRelativeTo(null); // window centered to the screen
-        setVisible(true);
     }
 
     private void drawPieces() {
@@ -154,14 +178,16 @@ public class GUI extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        Tile tile = (Tile) e.getSource();
-        game.checkPiece(boardState.getCoordinates()[tile.xGrid()][tile.yGrid()]);
-        draw();
+        if (game.isActive()) {
+            Tile tile = (Tile) e.getSource();
+            game.checkPiece(boardState.getCoordinates()[tile.xGrid()][tile.yGrid()]);
+            draw();
 
-        Coordinates c = game.getSelected();
-        if (c != null)
-            mark(gameBoard.getTile(c.getX(), c.getY()));
+            Coordinates c = game.getSelected();
+            if (c != null)
+                mark(gameBoard.getTile(c.getX(), c.getY()));
 
-        comment.setText(game.getComment());
+            comment.setText(game.getComment());
+        }
     }
 }

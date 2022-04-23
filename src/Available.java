@@ -18,10 +18,8 @@ public class Available extends ArrayList<Coordinates> {
                 boardState.setJumpFalse();
                 setAvailable(boardState);
             }
-            else
-                return false;
         }
-        return true;
+        return isEmpty();
     }
 
     private void checkAvailable(BoardState boardState, Coordinates c) { // TODO use Game.java : use some version of addPossibleMoves and then check its size to know if the piece is available
