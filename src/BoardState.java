@@ -4,12 +4,16 @@ public class BoardState {
     private PieceType[][] board;
     private Player turn;
     private boolean jump;
+    private int whiteCount;
+    private int blackCount;
     private static Coordinates[][] coordinates = new Coordinates[8][8];
 
     public BoardState() {
         board = new PieceType[8][8];
         turn = Player.WHITE;
         jump = true;
+        whiteCount = 12;
+        blackCount = 12;
         fillBoard();
         fillCoordinates();
     }
@@ -18,6 +22,8 @@ public class BoardState {
         board = boardState.board.clone();
         turn = boardState.turn;
         jump = boardState.jump;
+        whiteCount = boardState.whiteCount;
+        blackCount = boardState.blackCount;
     }
 
     private void fillBoard() {
@@ -130,8 +136,21 @@ public class BoardState {
         int dx = (to.getX() - from.getX()) / distance;
         int dy = (to.getY() - from.getY()) / distance;
 
-        for (int i = 1; i < distance; i++)
-            board[from.getX() + i * dx][from.getY() + i * dy] = null;
+        if (jump) {
+            PieceType tile;
+            int sub;
+            for (int i = 1; i < distance; i++) {
+                tile = board[from.getX() + i * dx][from.getY() + i * dy];
+                if (tile != null) {
+                    sub = (tile.isKing()) ? 3 : 1;
+                    if (getTurn() == Player.WHITE)
+                        blackCount -= sub;
+                    else
+                        whiteCount -= sub;
+                    board[from.getX() + i * dx][from.getY() + i * dy] = null;
+                }
+            }
+        }
     }
 
     private boolean checkIndex(int x, int y) {
@@ -141,10 +160,14 @@ public class BoardState {
     private void makeKing(Coordinates c) {
         PieceType piece = getBoard()[c.getX()][c.getY()];
         if (!piece.isKing()) {
-            if (piece.getPlayer() == Player.WHITE && c.getY() == 0)
+            if (piece.getPlayer() == Player.WHITE && c.getY() == 0) {
                 piece.setKing();
-            else if (piece.getPlayer() == Player.BLACK && c.getY() == 7)
+                whiteCount += 2;
+            }
+            else if (piece.getPlayer() == Player.BLACK && c.getY() == 7) {
                 piece.setKing();
+                blackCount += 2;
+            }
         }
     }
     public PieceType[][] getBoard() {
@@ -161,6 +184,14 @@ public class BoardState {
 
     public void setJumpFalse() {
         jump = false;
+    }
+
+    public int getWhiteCount() {
+        return whiteCount;
+    }
+
+    public int getBlackCount() {
+        return blackCount;
     }
 
     public Coordinates[][] getCoordinates() {

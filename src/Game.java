@@ -47,7 +47,10 @@ public class Game {
             possibleMoves = boardState.getPossibleMoves(c, combo);
             comment = Comment.NO_COMMENT;
         }
-        else comment = Comment.NOT_AVAILABLE;
+        else if (boardState.getJump())
+            comment = Comment.MUST_JUMP;
+        else
+            comment = Comment.NOT_AVAILABLE;
     }
 
     private void finishMove(Coordinates c) {
