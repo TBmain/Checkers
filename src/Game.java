@@ -11,6 +11,7 @@ public class Game {
     private Coordinates selected;
     private boolean combo;
     private Comment comment;
+    private int noProgress;
     private boolean active;
 
     public Game() {
@@ -20,6 +21,7 @@ public class Game {
         selected = null;
         combo = false;
         comment = Comment.WHITE;
+        noProgress = 0;
         active = true;
     }
 
@@ -58,6 +60,8 @@ public class Game {
                 possibleMoves = boardState.getPossibleMoves(selected, combo = true);
             }
             if (possibleMoves.size() == 0) {
+                if (noProgressMoves(c))
+                    return;
                 selected = null;
                 combo = false;
                 comment = boardState.nextTurn();
@@ -70,12 +74,25 @@ public class Game {
     }
 
     private void gameOver(Player winner) {
-        if (winner == Player.WHITE)
+        if (winner == null)
+            comment = Comment.TIE;
+        else if (winner == Player.WHITE)
             comment = Comment.WHITE_WON;
         else
             comment = Comment.BLACK_WON;
-        // TODO tie
         active = false;
+    }
+
+    private boolean noProgressMoves(Coordinates c) {
+        if (boardState.getBoard()[c.getX()][c.getY()].isKing() && !boardState.getJump()) {
+            if (++noProgress == 15) {
+                gameOver(null);
+                return true;
+            }
+        }
+        else
+            noProgress = 0;
+        return false;
     }
 
     public BoardState getBoardState() {
