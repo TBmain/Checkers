@@ -1,7 +1,3 @@
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 
 public class Game {
@@ -9,7 +5,6 @@ public class Game {
     private Available available;
     private ArrayList<Coordinates> possibleMoves;
     private Coordinates selected;
-    private boolean combo;
     private Comment comment;
     private int noProgress;
     private boolean active;
@@ -19,10 +14,10 @@ public class Game {
         available = new Available(boardState);
         possibleMoves = new ArrayList<>();
         selected = null;
-        combo = false;
         comment = Comment.WHITE;
         noProgress = 0;
         active = true;
+        System.out.println(boardState.getSuccessors().size()); // TODO remove
     }
 
     public void checkPiece(Coordinates c) {
@@ -44,7 +39,7 @@ public class Game {
         if (available.contains(c)) {
             selected = c;
             possibleMoves.clear();
-            possibleMoves = boardState.getPossibleMoves(c, combo);
+            possibleMoves = boardState.getPossibleMoves(c, false);
             comment = Comment.NO_COMMENT;
         }
         else if (boardState.getJump())
@@ -55,19 +50,19 @@ public class Game {
 
     private void finishMove(Coordinates c) {
         if (possibleMoves.contains(c)) {
-            boardState.move(selected, c);
-            possibleMoves.clear();
+            possibleMoves = boardState.move(selected, c);
             available.clear();
-            if (boardState.getJump()) {
-                selected = c;
-                possibleMoves = boardState.getPossibleMoves(selected, combo = true);
-            }
+            selected = c;
             if (possibleMoves.size() == 0) {
                 if (noProgressMoves(c))
                     return;
                 selected = null;
-                combo = false;
                 comment = boardState.nextTurn();
+                // TODO random AI for now (plays black) - doesn't work well with comments and crashes when game over
+                int rand = (int)(Math.random() * 100);
+                ArrayList<BoardState> states = boardState.getSuccessors();
+                boardState = states.get(rand % states.size());
+
                 if (available.setAvailable(boardState))
                     gameOver(boardState.getTurn().getOpposite());
             }

@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Hashtable;
 
 public class GUI extends JFrame implements ActionListener {
 
@@ -21,9 +22,7 @@ public class GUI extends JFrame implements ActionListener {
 
     private Game game;
     private GameBoard gameBoard;
-    private BoardState boardState;
     private ArrayList<Coordinates> possibleMoves;
-    private JLabel board;
     private JTextArea comment;
 
     public GUI() {
@@ -33,6 +32,7 @@ public class GUI extends JFrame implements ActionListener {
     }
 
     private void start() {
+        settingsPopup();
         System.out.println("Starting...");
         loadImages();
         System.out.println("Images loaded");
@@ -73,16 +73,25 @@ public class GUI extends JFrame implements ActionListener {
         JMenuBar menu = new JMenuBar();
         menu.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
         JMenu options = new JMenu("Options");
+        JMenu info = new JMenu("Info");
+
         menu.add(options);
+        menu.add(info);
 
         JMenuItem restart = new JMenuItem("Restart");
         JMenuItem undo = new JMenuItem("Undo");
+        JMenuItem rules = new JMenuItem("Rules");
+        JMenuItem credits = new JMenuItem("Credits");
 
         options.add(restart);
         options.add(undo);
+        info.add(rules);
+        info.add(credits);
 
         restart.addActionListener(e -> System.out.println("game.restart()"));
         undo.addActionListener(e -> System.out.println("game.undo()"));
+        rules.addActionListener(e -> System.out.println("rules()"));
+        credits.addActionListener(e -> System.out.println("credits()"));
 
         getContentPane().add(menu);
     }
@@ -90,10 +99,9 @@ public class GUI extends JFrame implements ActionListener {
     private void setupBoard() {
         game = new Game();
         gameBoard = new GameBoard(this);
-        boardState = game.getBoardState();
         possibleMoves = new ArrayList<>();
 
-        board = new JLabel(background);
+        JLabel board = new JLabel(background);
         board.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
         board.add(gameBoard);
 
@@ -122,7 +130,7 @@ public class GUI extends JFrame implements ActionListener {
         for (Component comp : gameBoard.getComponents()) {
             Tile tile = (Tile) comp;
             if (tile.isVisible()) {
-                PieceType piece = boardState.getBoard()[tile.xGrid()][tile.yGrid()];
+                PieceType piece = game.getBoardState().getBoard()[tile.xGrid()][tile.yGrid()];
                 if (piece != null) {
                     if (piece.getPlayer() == Player.WHITE) {
                         if (piece.isKing())
@@ -156,8 +164,8 @@ public class GUI extends JFrame implements ActionListener {
     }
 
     private void mark(Tile tile) {
-        PieceType piece = boardState.getBoard()[tile.xGrid()][tile.yGrid()];
-        if (piece != null && piece.getPlayer() == boardState.getTurn()) {
+        PieceType piece = game.getBoardState().getBoard()[tile.xGrid()][tile.yGrid()];
+        if (piece != null && piece.getPlayer() == game.getBoardState().getTurn()) {
             Player p = piece.getPlayer();
             switch(p) {
                 case WHITE:
@@ -180,7 +188,7 @@ public class GUI extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (game.isActive()) {
             Tile tile = (Tile) e.getSource();
-            game.checkPiece(boardState.getCoordinates()[tile.xGrid()][tile.yGrid()]);
+            game.checkPiece(game.getBoardState().getCoordinates()[tile.xGrid()][tile.yGrid()]);
             draw();
 
             Coordinates c = game.getSelected();
@@ -189,5 +197,59 @@ public class GUI extends JFrame implements ActionListener {
 
             comment.setText(game.getComment());
         }
+    }
+
+    private void settingsPopup() {
+        JPanel panel = new JPanel(new GridLayout(5,1)); // settings window
+
+        // 2 players & 1 player buttons
+        JRadioButton twoPlayers = new JRadioButton("Player VS Player", true);
+        JRadioButton onePlayer = new JRadioButton("Player VS AI");
+        ButtonGroup gameMode = new ButtonGroup();
+        gameMode.add(twoPlayers);
+        gameMode.add(onePlayer);
+
+        // play as white or as black (only for 1 player option) buttons
+        JRadioButton white = new JRadioButton("Play as white", true);
+        JRadioButton black = new JRadioButton("Play as black");
+        ButtonGroup playAs = new ButtonGroup();
+        playAs.add(white);
+        playAs.add(black);
+
+        // difficulty slider
+        JSlider difficulty = new JSlider(1, 4, 3);
+        Hashtable<Integer, JLabel> labelTable = new Hashtable<>();
+        labelTable.put(1, new JLabel("Easy"));
+        labelTable.put(2, new JLabel("Medium"));
+        labelTable.put(3, new JLabel("Hard"));
+        labelTable.put(4, new JLabel("Impossible"));
+        difficulty.setLabelTable(labelTable);
+        difficulty.setPaintLabels(true);
+        difficulty.setPaintTicks(true);
+        difficulty.setMajorTickSpacing(1);
+        difficulty.setPreferredSize(new Dimension(250,50));
+
+        // show/hide AI options according to 1/2 players
+        twoPlayers.addActionListener(e -> { white.setVisible(false);
+                                            black.setVisible(false);
+                                            difficulty.setVisible(false);});
+        onePlayer.addActionListener(e -> { white.setVisible(true);
+                                           black.setVisible(true);
+                                           difficulty.setVisible(true);});
+
+        // add everything to the settings window
+        panel.add(twoPlayers);
+        panel.add(onePlayer);
+        panel.add(white);
+        panel.add(black);
+        panel.add(difficulty);
+
+        // hide 1 player options
+        white.setVisible(false);
+        black.setVisible(false);
+        difficulty.setVisible(false);
+
+        JOptionPane.showConfirmDialog(null, panel, "Game Settings",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE);
     }
 }

@@ -19,7 +19,9 @@ public class BoardState {
     }
 
     public BoardState(BoardState boardState) {
-        board = boardState.board.clone();
+        board = new PieceType[8][8];
+        for (int i = 0; i < 8; i++)
+            board[i] = boardState.board[i].clone();
         turn = boardState.turn;
         jump = boardState.jump;
         whiteCount = boardState.whiteCount;
@@ -48,7 +50,6 @@ public class BoardState {
 
         int x = c.getX();
         int y = c.getY();
-
         if (getBoard()[x][y].isKing()) {
             possibleMoves.addAll(getKingMoves(c));
         }
@@ -126,7 +127,8 @@ public class BoardState {
         return possibleMoves;
     }
 
-    public void move(Coordinates from, Coordinates to) {
+    public ArrayList<Coordinates> move(Coordinates from, Coordinates to) {
+        if (getBoard()[from.getX()][from.getY()] == null) System.out.println("WTF");
         getBoard()[to.getX()][to.getY()] = getBoard()[from.getX()][from.getY()];
         getBoard()[from.getX()][from.getY()] = null;
 
@@ -150,7 +152,9 @@ public class BoardState {
                     board[from.getX() + i * dx][from.getY() + i * dy] = null;
                 }
             }
+            return getPossibleMoves(to, true);
         }
+        return new ArrayList<>();
     }
 
     private boolean checkIndex(int x, int y) {
@@ -201,8 +205,63 @@ public class BoardState {
     public Comment nextTurn() {
         turn = turn.getOpposite();
         jump = true;
+        //System.out.println(getSuccessors().size()); // TODO remove
         if (turn == Player.WHITE)
             return Comment.WHITE;
         return Comment.BLACK;
+    }
+
+    public ArrayList<BoardState> getSuccessors() {
+        ArrayList<BoardState> successors = new ArrayList<>();
+
+        Available pieces = new Available(this);
+        for (Coordinates piece : pieces) {
+            ArrayList<Coordinates> moves = getPossibleMoves(piece, false);
+            for (Coordinates move : moves) {
+                BoardState successor = new BoardState(this); // deep copy BoardState
+                successors.addAll(successor.possibleSuccessors(piece, move));
+            }
+        }
+        /*for (BoardState succ : successors) // TODO remove
+            succ.printBoard();*/
+        return successors;
+    }
+
+    private ArrayList<BoardState> possibleSuccessors(Coordinates from, Coordinates to) {
+        ArrayList<BoardState> results = new ArrayList<>();
+
+        ArrayList<Coordinates> comboMoves = move(from, to);
+
+        if (comboMoves.size() == 0) {
+            /*turn = turn.getOpposite(); // TODO remove
+            jump = true;*/
+            nextTurn();
+            results.add(this);
+        }
+
+        for (Coordinates comboMove : comboMoves) {
+            BoardState successorCombo = new BoardState(this); // deep copy BoardState
+            results.addAll(successorCombo.possibleSuccessors(to, comboMove));
+        }
+
+        return results;
+    }
+
+    private void printBoard() {
+        String shape;
+        for (int x = 0; x < 8; x++) {
+            System.out.println();
+            for (int y = 0; y < 8; y++) {
+                shape = "-";
+                if (board[y][x] != null) {
+                    if (board[y][x].getPlayer() == Player.WHITE)
+                        shape = "x";
+                    else
+                        shape = "o";
+                }
+                System.out.print(shape + " ");
+            }
+        }
+        System.out.println();
     }
 }
