@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -41,7 +42,6 @@ public class GUI extends JFrame implements ActionListener {
         System.out.println("Frame loaded");
         drawPieces();
         System.out.println("Pieces drawn");
-        JOptionPane.showMessageDialog(this, "Game Is Ready!");
     }
 
     private void loadImages() {
@@ -89,7 +89,7 @@ public class GUI extends JFrame implements ActionListener {
         info.add(rules);
         info.add(credits);
 
-        restart.addActionListener(e -> System.out.println("game.restart()"));
+        restart.addActionListener(e -> new GUI());
         undo.addActionListener(e -> System.out.println("game.undo()"));
         rules.addActionListener(e -> System.out.println("rules()"));
         credits.addActionListener(e -> System.out.println("credits()"));
@@ -256,6 +256,7 @@ public class GUI extends JFrame implements ActionListener {
 
         // process results
         if (result == JOptionPane.OK_OPTION) {
+            dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
             if (onePlayer.isSelected()) {
                 Settings.TWO_PLAYERS = false;
                 Settings.FIRST_MOVE = (white.isSelected()) ? true : false;
