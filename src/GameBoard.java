@@ -26,6 +26,7 @@ public class GameBoard extends JLabel {
             tile.setOpaque(false);
             tile.setContentAreaFilled(false);
             tile.setBorderPainted(false);
+            tile.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
             tile.setFocusPainted(false);
             tile.addActionListener(action);
         }

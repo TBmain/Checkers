@@ -6,6 +6,7 @@ public class BoardState {
     private boolean jump;
     private int whiteCount;
     private int blackCount;
+    private ArrayList<Coordinates> lastMove;
     private static Coordinates[][] coordinates = new Coordinates[8][8];
 
     public BoardState() {
@@ -14,6 +15,7 @@ public class BoardState {
         jump = true;
         whiteCount = 12;
         blackCount = 12;
+        lastMove = new ArrayList<>();
         fillBoard();
         fillCoordinates();
     }
@@ -26,6 +28,7 @@ public class BoardState {
         jump = boardState.jump;
         whiteCount = boardState.whiteCount;
         blackCount = boardState.blackCount;
+        lastMove = new ArrayList<>(boardState.lastMove);
     }
 
     private void fillBoard() {
@@ -130,7 +133,9 @@ public class BoardState {
     }
 
     public ArrayList<Coordinates> move(Coordinates from, Coordinates to) {
-        if (getBoard()[from.getX()][from.getY()] == null) System.out.println("WTF");
+        lastMove.clear();
+        lastMove.add(from);
+        lastMove.add(to);
         getBoard()[to.getX()][to.getY()] = getBoard()[from.getX()][from.getY()];
         getBoard()[from.getX()][from.getY()] = null;
 
@@ -198,6 +203,10 @@ public class BoardState {
 
     public int getBlackCount() {
         return blackCount;
+    }
+
+    public ArrayList<Coordinates> getLastMove() {
+        return lastMove;
     }
 
     public Coordinates[][] getCoordinates() {

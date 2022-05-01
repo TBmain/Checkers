@@ -19,7 +19,6 @@ public class GUI extends JFrame implements ActionListener {
     private Icon selectedWhiteKing;
     private Icon selectedBlackKing;
     private Icon possibleMove;
-    private Icon lastMove; // TODO same thing as selectedPiece - *another idea is to just use button borders*
 
     private Game game;
     private GameBoard gameBoard;
@@ -44,6 +43,72 @@ public class GUI extends JFrame implements ActionListener {
         System.out.println("Pieces drawn");
     }
 
+    private boolean settingsPopup() {
+        JPanel panel = new JPanel(new GridLayout(5,1)); // settings window
+
+        // 2 players & 1 player buttons
+        JRadioButton twoPlayers = new JRadioButton("Player VS Player", true);
+        JRadioButton onePlayer = new JRadioButton("Player VS AI");
+        ButtonGroup gameMode = new ButtonGroup();
+        gameMode.add(twoPlayers);
+        gameMode.add(onePlayer);
+
+        // play as white or as black (only for 1 player option) buttons
+        JRadioButton white = new JRadioButton("Play as white", true);
+        JRadioButton black = new JRadioButton("Play as black");
+        ButtonGroup playAs = new ButtonGroup();
+        playAs.add(white);
+        playAs.add(black);
+
+        // difficulty slider
+        JSlider difficulty = new JSlider(1, 4, 3);
+        Hashtable<Integer, JLabel> labelTable = new Hashtable<>();
+        labelTable.put(1, new JLabel("Easy"));
+        labelTable.put(2, new JLabel("Medium"));
+        labelTable.put(3, new JLabel("Hard"));
+        labelTable.put(4, new JLabel("Impossible"));
+        difficulty.setLabelTable(labelTable);
+        difficulty.setPaintLabels(true);
+        difficulty.setPaintTicks(true);
+        difficulty.setMajorTickSpacing(1);
+        difficulty.setPreferredSize(new Dimension(250,50));
+
+        // show/hide AI options according to 1/2 players
+        twoPlayers.addActionListener(e -> { white.setVisible(false);
+            black.setVisible(false);
+            difficulty.setVisible(false);});
+        onePlayer.addActionListener(e -> { white.setVisible(true);
+            black.setVisible(true);
+            difficulty.setVisible(true);});
+
+        // add everything to the settings window
+        panel.add(twoPlayers);
+        panel.add(onePlayer);
+        panel.add(white);
+        panel.add(black);
+        panel.add(difficulty);
+
+        // hide 1 player options
+        white.setVisible(false);
+        black.setVisible(false);
+        difficulty.setVisible(false);
+
+        // show window
+        int result = JOptionPane.showConfirmDialog(null, panel, "Game Settings",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        // process results
+        if (result == JOptionPane.OK_OPTION) {
+            getContentPane().removeAll();
+            Settings.TWO_PLAYERS = (twoPlayers.isSelected()) ? true : false;
+            Settings.FIRST_MOVE = (white.isSelected()) ? true : false;
+            Settings.REVERSE = !Settings.TWO_PLAYERS && !Settings.FIRST_MOVE;
+            Settings.AI_DEPTH = difficulty.getValue() * 2; // TODO make different depths
+            return true;
+        }
+        return false;
+    }
+
     private void loadImages() {
         background = new ImageIcon("imgs\\gameboard.png");
         whitePiece = new ImageIcon("imgs\\light piece.png");
@@ -55,7 +120,6 @@ public class GUI extends JFrame implements ActionListener {
         selectedWhiteKing = new ImageIcon("imgs\\selected light king.png");
         selectedBlackKing = new ImageIcon("imgs\\selected dark king.png");
         possibleMove = new ImageIcon("imgs\\possible move.png");
-        lastMove = new ImageIcon("imgs\\last move.png");
     }
 
     private void setupFrame() {
@@ -64,7 +128,7 @@ public class GUI extends JFrame implements ActionListener {
         setupBoard();
         setupComments();
         pack();
-        setDefaultCloseOperation(this.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
         setLocationRelativeTo(null); // window centered to the screen
         setVisible(true);
@@ -89,11 +153,12 @@ public class GUI extends JFrame implements ActionListener {
         info.add(rules);
         info.add(credits);
 
-        restart.addActionListener(e -> new GUI());
+        restart.addActionListener(e -> start());
         undo.addActionListener(e -> System.out.println("game.undo()"));
-        rules.addActionListener(e -> System.out.println("rules()"));
-        credits.addActionListener(e -> System.out.println("credits()"));
-
+        rules.addActionListener(e ->
+                JOptionPane.showMessageDialog(null, "", "Rules", JOptionPane.PLAIN_MESSAGE));
+        credits.addActionListener(e ->
+                JOptionPane.showMessageDialog(null, "", "Credits", JOptionPane.PLAIN_MESSAGE));
         getContentPane().add(menu);
     }
 
@@ -131,6 +196,7 @@ public class GUI extends JFrame implements ActionListener {
         for (Component comp : gameBoard.getComponents()) {
             Tile tile = (Tile) comp;
             if (tile.isVisible()) {
+                drawLastMove(tile);
                 PieceType piece = game.getBoardState().getBoard()[tile.xGrid()][tile.yGrid()];
                 if (piece != null) {
                     if (piece.getPlayer() == Player.WHITE) {
@@ -185,6 +251,14 @@ public class GUI extends JFrame implements ActionListener {
         }
     }
 
+    private void drawLastMove(Tile tile) {
+        BoardState boardState = game.getBoardState();
+        if (boardState.getLastMove().contains(boardState.getCoordinates()[tile.xGrid()][tile.yGrid()]))
+            tile.setBorderPainted(true);
+        else
+            tile.setBorderPainted(false);
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (game.isActive()) {
@@ -199,72 +273,6 @@ public class GUI extends JFrame implements ActionListener {
             comment.setText(game.getComment());
         }
     }
-
-    private boolean settingsPopup() {
-        JPanel panel = new JPanel(new GridLayout(5,1)); // settings window
-
-        // 2 players & 1 player buttons
-        JRadioButton twoPlayers = new JRadioButton("Player VS Player", true);
-        JRadioButton onePlayer = new JRadioButton("Player VS AI");
-        ButtonGroup gameMode = new ButtonGroup();
-        gameMode.add(twoPlayers);
-        gameMode.add(onePlayer);
-
-        // play as white or as black (only for 1 player option) buttons
-        JRadioButton white = new JRadioButton("Play as white", true);
-        JRadioButton black = new JRadioButton("Play as black");
-        ButtonGroup playAs = new ButtonGroup();
-        playAs.add(white);
-        playAs.add(black);
-
-        // difficulty slider
-        JSlider difficulty = new JSlider(1, 4, 3);
-        Hashtable<Integer, JLabel> labelTable = new Hashtable<>();
-        labelTable.put(1, new JLabel("Easy"));
-        labelTable.put(2, new JLabel("Medium"));
-        labelTable.put(3, new JLabel("Hard"));
-        labelTable.put(4, new JLabel("Impossible"));
-        difficulty.setLabelTable(labelTable);
-        difficulty.setPaintLabels(true);
-        difficulty.setPaintTicks(true);
-        difficulty.setMajorTickSpacing(1);
-        difficulty.setPreferredSize(new Dimension(250,50));
-
-        // show/hide AI options according to 1/2 players
-        twoPlayers.addActionListener(e -> { white.setVisible(false);
-                                            black.setVisible(false);
-                                            difficulty.setVisible(false);});
-        onePlayer.addActionListener(e -> { white.setVisible(true);
-                                           black.setVisible(true);
-                                           difficulty.setVisible(true);});
-
-        // add everything to the settings window
-        panel.add(twoPlayers);
-        panel.add(onePlayer);
-        panel.add(white);
-        panel.add(black);
-        panel.add(difficulty);
-
-        // hide 1 player options
-        white.setVisible(false);
-        black.setVisible(false);
-        difficulty.setVisible(false);
-
-        // show window
-        int result = JOptionPane.showConfirmDialog(null, panel, "Game Settings",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-        // process results
-        if (result == JOptionPane.OK_OPTION) {
-            dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-            if (onePlayer.isSelected()) {
-                Settings.TWO_PLAYERS = false;
-                Settings.FIRST_MOVE = (white.isSelected()) ? true : false;
-                Settings.REVERSE = !Settings.TWO_PLAYERS && !Settings.FIRST_MOVE;
-                Settings.AI_DEPTH = difficulty.getValue() * 2; // TODO make different depths
-            }
-            return true;
-        }
-        return false;
-    }
 }
+
+
