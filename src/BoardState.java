@@ -29,15 +29,17 @@ public class BoardState {
     }
 
     private void fillBoard() {
+        Player p1 = (Settings.REVERSE) ? Player.BLACK : Player.WHITE;
+        Player p2 = p1.getOpposite();
         for (int x = 0; x < 8; x++)
             for (int y = 0; y < 3; y++)
                 if ((x + y) % 2 != 0)
-                    board[x][y] = new PieceType(Player.BLACK, false);
+                    board[x][y] = new PieceType(p2, false);
 
         for (int x = 0; x < 8; x++)
             for (int y = 5; y < 8; y++)
                 if ((x + y) % 2 != 0)
-                    board[x][y] = new PieceType(Player.WHITE, false);
+                    board[x][y] = new PieceType(p1, false);
     }
 
     private void fillCoordinates() {
@@ -54,7 +56,7 @@ public class BoardState {
             possibleMoves.addAll(getKingMoves(c));
         }
         else {
-            int dy = (getTurn() == Player.WHITE) ? -1 : +1;
+            int dy = (getTurn() == Player.WHITE) ? ((Settings.REVERSE) ? +1 : -1) : ((Settings.REVERSE) ? -1 : +1);
             ArrayList<Coordinates> move;
             if ((move = checkMove(c, 1, dy)) != null)
                 possibleMoves.addAll(move);
@@ -164,11 +166,11 @@ public class BoardState {
     private void makeKing(Coordinates c) {
         PieceType piece = getBoard()[c.getX()][c.getY()];
         if (!piece.isKing()) {
-            if (piece.getPlayer() == Player.WHITE && c.getY() == 0) {
+            if (piece.getPlayer() == Player.WHITE && c.getY() == ((Settings.REVERSE) ? 7 : 0)) {
                 piece.setKing();
                 whiteCount += 2;
             }
-            else if (piece.getPlayer() == Player.BLACK && c.getY() == 7) {
+            else if (piece.getPlayer() == Player.BLACK && c.getY() == ((Settings.REVERSE) ? 0 : 7)) {
                 piece.setKing();
                 blackCount += 2;
             }

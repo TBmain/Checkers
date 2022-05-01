@@ -90,13 +90,15 @@ public class Game {
     }
 
     private void turn() {
-        if (isAITurn()) {
+        if (available.setAvailable(boardState))
+            gameOver(boardState.getTurn().getOpposite());
+        else if (isAITurn()) {
             boardState = ai.move(boardState);
             comment = (boardState.getTurn() == Player.WHITE) ? Comment.WHITE : Comment.BLACK;
             available.clear();
+            if (available.setAvailable(boardState))
+                gameOver(boardState.getTurn().getOpposite());
         }
-        if (available.setAvailable(boardState))
-            gameOver(boardState.getTurn().getOpposite());
     }
 
     private boolean isAITurn() {

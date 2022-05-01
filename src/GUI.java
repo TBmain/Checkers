@@ -32,10 +32,8 @@ public class GUI extends JFrame implements ActionListener {
     }
 
     private void start() {
-        if (!settingsPopup()) {
-            System.out.println("CANCELED");
+        if (!settingsPopup())
             return;
-        }
         System.out.println("Starting...");
         loadImages();
         System.out.println("Images loaded");
@@ -261,6 +259,7 @@ public class GUI extends JFrame implements ActionListener {
             if (onePlayer.isSelected()) {
                 Settings.TWO_PLAYERS = false;
                 Settings.FIRST_MOVE = (white.isSelected()) ? true : false;
+                Settings.REVERSE = !Settings.TWO_PLAYERS && !Settings.FIRST_MOVE;
                 Settings.AI_DEPTH = difficulty.getValue() * 2; // TODO make different depths
             }
             return true;
