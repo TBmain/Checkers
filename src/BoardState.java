@@ -205,7 +205,6 @@ public class BoardState {
     public Comment nextTurn() {
         turn = turn.getOpposite();
         jump = true;
-        //System.out.println(getSuccessors().size()); // TODO remove
         if (turn == Player.WHITE)
             return Comment.WHITE;
         return Comment.BLACK;
@@ -222,8 +221,6 @@ public class BoardState {
                 successors.addAll(successor.possibleSuccessors(piece, move));
             }
         }
-        /*for (BoardState succ : successors) // TODO remove
-            succ.printBoard();*/
         return successors;
     }
 
@@ -233,8 +230,6 @@ public class BoardState {
         ArrayList<Coordinates> comboMoves = move(from, to);
 
         if (comboMoves.size() == 0) {
-            /*turn = turn.getOpposite(); // TODO remove
-            jump = true;*/
             nextTurn();
             results.add(this);
         }

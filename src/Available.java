@@ -22,7 +22,7 @@ public class Available extends ArrayList<Coordinates> {
         return isEmpty();
     }
 
-    private void checkAvailable(BoardState boardState, Coordinates c) { // TODO use Game.java : use some version of addPossibleMoves and then check its size to know if the piece is available
+    private void checkAvailable(BoardState boardState, Coordinates c) {
         if (boardState.getPossibleMoves(c, false).size() > 0)
             add(c);
     }

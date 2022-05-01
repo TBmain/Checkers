@@ -32,7 +32,10 @@ public class GUI extends JFrame implements ActionListener {
     }
 
     private void start() {
-        settingsPopup();
+        if (!settingsPopup()) {
+            System.out.println("CANCELED");
+            return;
+        }
         System.out.println("Starting...");
         loadImages();
         System.out.println("Images loaded");
@@ -199,7 +202,7 @@ public class GUI extends JFrame implements ActionListener {
         }
     }
 
-    private void settingsPopup() {
+    private boolean settingsPopup() {
         JPanel panel = new JPanel(new GridLayout(5,1)); // settings window
 
         // 2 players & 1 player buttons
@@ -249,7 +252,19 @@ public class GUI extends JFrame implements ActionListener {
         black.setVisible(false);
         difficulty.setVisible(false);
 
-        JOptionPane.showConfirmDialog(null, panel, "Game Settings",
-                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE);
+        // show window
+        int result = JOptionPane.showConfirmDialog(null, panel, "Game Settings",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        // process results
+        if (result == JOptionPane.OK_OPTION) {
+            if (onePlayer.isSelected()) {
+                Settings.TWO_PLAYERS = false;
+                Settings.FIRST_MOVE = (white.isSelected()) ? true : false;
+                Settings.AI_DEPTH = difficulty.getValue() * 2; // TODO make different depths
+            }
+            return true;
+        }
+        return false;
     }
 }

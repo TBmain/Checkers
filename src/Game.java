@@ -8,6 +8,7 @@ public class Game {
     private Comment comment;
     private int noProgress;
     private boolean active;
+    private AI ai;
 
     public Game() {
         boardState = new BoardState();
@@ -17,7 +18,8 @@ public class Game {
         comment = Comment.WHITE;
         noProgress = 0;
         active = true;
-        System.out.println(boardState.getSuccessors().size()); // TODO remove
+        ai = new AI();
+        turn();
     }
 
     public void checkPiece(Coordinates c) {
@@ -58,13 +60,7 @@ public class Game {
                     return;
                 selected = null;
                 comment = boardState.nextTurn();
-                // TODO random AI for now (plays black) - doesn't work well with comments and crashes when game over
-                int rand = (int)(Math.random() * 100);
-                ArrayList<BoardState> states = boardState.getSuccessors();
-                boardState = states.get(rand % states.size());
-
-                if (available.setAvailable(boardState))
-                    gameOver(boardState.getTurn().getOpposite());
+                turn();
             }
             else available.add(selected);
         }
@@ -91,6 +87,20 @@ public class Game {
         else
             noProgress = 0;
         return false;
+    }
+
+    private void turn() {
+        if (isAITurn()) {
+            boardState = ai.move(boardState);
+            comment = (boardState.getTurn() == Player.WHITE) ? Comment.WHITE : Comment.BLACK;
+            available.clear();
+        }
+        if (available.setAvailable(boardState))
+            gameOver(boardState.getTurn().getOpposite());
+    }
+
+    private boolean isAITurn() {
+        return !Settings.TWO_PLAYERS && (boardState.getTurn() == ai.getPlayer());
     }
 
     public BoardState getBoardState() {
