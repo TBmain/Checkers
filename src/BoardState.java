@@ -197,11 +197,9 @@ public class BoardState {
         jump = false;
     }
 
-    public int getWhiteCount() {
-        return whiteCount;
-    }
-
-    public int getBlackCount() {
+    public int getPieceCount(Player p) {
+        if (p == Player.WHITE)
+            return whiteCount;
         return blackCount;
     }
 

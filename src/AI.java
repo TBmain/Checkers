@@ -1,3 +1,5 @@
+import javax.swing.*;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class AI {
@@ -10,9 +12,59 @@ public class AI {
     }
 
     public BoardState move(BoardState boardState) { // TODO random AI for now
-        int rand = (int)(Math.random() * 100);
         ArrayList<BoardState> states = boardState.getSuccessors();
-        return states.get(rand % states.size());
+        return calcMoves(states);
+    }
+
+    private BoardState calcMoves(ArrayList<BoardState> successors) {
+        if (successors.size() == 1)
+            return successors.get(0);
+        int bestScore = Integer.MIN_VALUE;
+        ArrayList<BoardState> bestMoves = new ArrayList<>();
+        for (BoardState succ : successors) {
+            int val = minimax(succ, depth);
+            if (val > bestScore) {
+                bestScore = val;
+                bestMoves.clear();
+            }
+            if (val == bestScore)
+                bestMoves.add(succ);
+        }
+        return randomMove(bestMoves);
+    }
+
+    private int minimax(BoardState node, int depth) {
+        if (depth == 0 || node.getSuccessors().size() == 0)
+            return calcScore(node);
+        int score;
+        // MAX
+        if (node.getTurn() == player) {
+            score = Integer.MIN_VALUE;
+            for (BoardState child : node.getSuccessors()) {
+                score = Math.max(score, minimax(child, depth - 1));
+            }
+        }
+        // MIN
+        else {
+            score = Integer.MAX_VALUE;
+            for (BoardState child : node.getSuccessors()) {
+                score = Math.min(score, minimax(child, depth - 1));
+            }
+        }
+        return score;
+    }
+
+    private BoardState randomMove(ArrayList<BoardState> moves) {
+        int random = (int)(Math.random() * moves.size());
+        return moves.get(random);
+    }
+
+    private int calcScore(BoardState node) {
+        if (node.getPieceCount(player) == 0)
+            return Integer.MIN_VALUE;
+        if (node.getPieceCount(player.getOpposite()) == 0)
+            return Integer.MAX_VALUE;
+        return node.getPieceCount(player) - node.getPieceCount(player.getOpposite());
     }
 
     public Player getPlayer() {
