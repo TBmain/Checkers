@@ -41,8 +41,10 @@ public class GUI extends JFrame implements ActionListener {
         System.out.println("Frame loaded");
         drawPieces();
         System.out.println("Pieces drawn");
-        game.turn();
-        updateGUI();
+        new Thread(() -> {
+            game.turn();
+            updateGUI();
+        }).start();
     }
 
     private boolean settingsPopup() {

@@ -96,7 +96,7 @@ public class Game {
         if (available.setAvailable(boardState))
             gameOver(boardState.getTurn().getOpposite());
         else if (isAITurn()) {
-            try { Thread.sleep(1000); } catch (InterruptedException e) {}
+            try { Thread.sleep(500); } catch (InterruptedException e) {}
             boardState = ai.move(boardState);
             comment = (boardState.getTurn() == Player.WHITE) ? Comment.WHITE : Comment.BLACK;
             available.clear();
