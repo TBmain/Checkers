@@ -1,5 +1,3 @@
-import javax.swing.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class AI {
@@ -22,7 +20,7 @@ public class AI {
         int bestScore = Integer.MIN_VALUE;
         ArrayList<BoardState> bestMoves = new ArrayList<>();
         for (BoardState succ : successors) {
-            int val = minimax(succ, depth);
+            int val = minimax(succ, depth, Integer.MIN_VALUE, Integer.MAX_VALUE);
             if (val > bestScore) {
                 bestScore = val;
                 bestMoves.clear();
@@ -33,7 +31,7 @@ public class AI {
         return randomMove(bestMoves);
     }
 
-    private int minimax(BoardState node, int depth) {
+    private int minimax(BoardState node, int depth, int alpha, int beta) {
         if (depth == 0 || node.getSuccessors().size() == 0)
             return calcScore(node);
         int score;
@@ -41,14 +39,20 @@ public class AI {
         if (node.getTurn() == player) {
             score = Integer.MIN_VALUE;
             for (BoardState child : node.getSuccessors()) {
-                score = Math.max(score, minimax(child, depth - 1));
+                score = Math.max(score, minimax(child, depth - 1, alpha, beta));
+                alpha = Math.max(alpha, score);
+                if (alpha >= beta)
+                    break;
             }
         }
         // MIN
         else {
             score = Integer.MAX_VALUE;
             for (BoardState child : node.getSuccessors()) {
-                score = Math.min(score, minimax(child, depth - 1));
+                score = Math.min(score, minimax(child, depth - 1, alpha, beta));
+                beta = Math.min(beta, score);
+                if (alpha >= beta)
+                    break;
             }
         }
         return score;

@@ -103,7 +103,7 @@ public class GUI extends JFrame implements ActionListener {
             Settings.TWO_PLAYERS = (twoPlayers.isSelected()) ? true : false;
             Settings.FIRST_MOVE = (white.isSelected()) ? true : false;
             Settings.REVERSE = !Settings.TWO_PLAYERS && !Settings.FIRST_MOVE;
-            Settings.AI_DEPTH = difficulty.getValue() * 2; // TODO make different depths
+            Settings.AI_DEPTH = difficulty.getValue() * 2;
             return true;
         }
         return false;
