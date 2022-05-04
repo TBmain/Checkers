@@ -3,5 +3,5 @@ public class Settings {
     // player vs AI settings
     public static boolean FIRST_MOVE = true;
     public static boolean REVERSE = false;
-    public static int AI_DEPTH = 3;
+    public static int AI_LEVEL = 3;
 }

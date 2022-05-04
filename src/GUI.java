@@ -105,7 +105,7 @@ public class GUI extends JFrame implements ActionListener {
             Settings.TWO_PLAYERS = (twoPlayers.isSelected()) ? true : false;
             Settings.FIRST_MOVE = (white.isSelected()) ? true : false;
             Settings.REVERSE = !Settings.TWO_PLAYERS && !Settings.FIRST_MOVE;
-            Settings.AI_DEPTH = difficulty.getValue() * 3;
+            Settings.AI_LEVEL = difficulty.getValue();
             return true;
         }
         return false;

@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class AI {
     private Player player;
@@ -6,7 +7,17 @@ public class AI {
 
     public AI() {
         player = (Settings.FIRST_MOVE) ? Player.BLACK : Player.WHITE;
-        depth = Settings.AI_DEPTH;
+        depth = lvlToDepth(Settings.AI_LEVEL);
+    }
+
+    private int lvlToDepth(int lvl) {
+        HashMap<Integer, Integer> difficulty = new HashMap<>() {{
+           put(1, 1);
+           put(2, 3);
+           put(3, 7);
+           put(4, 11);
+        }};
+        return difficulty.get(lvl);
     }
 
     public BoardState move(BoardState boardState) { // TODO random AI for now
