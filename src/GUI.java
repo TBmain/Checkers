@@ -41,6 +41,8 @@ public class GUI extends JFrame implements ActionListener {
         System.out.println("Frame loaded");
         drawPieces();
         System.out.println("Pieces drawn");
+        game.turn();
+        updateGUI();
     }
 
     private boolean settingsPopup() {
@@ -103,7 +105,7 @@ public class GUI extends JFrame implements ActionListener {
             Settings.TWO_PLAYERS = (twoPlayers.isSelected()) ? true : false;
             Settings.FIRST_MOVE = (white.isSelected()) ? true : false;
             Settings.REVERSE = !Settings.TWO_PLAYERS && !Settings.FIRST_MOVE;
-            Settings.AI_DEPTH = difficulty.getValue() * 2;
+            Settings.AI_DEPTH = difficulty.getValue() * 3;
             return true;
         }
         return false;
@@ -263,15 +265,25 @@ public class GUI extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (game.isActive()) {
             Tile tile = (Tile) e.getSource();
-            game.checkPiece(game.getBoardState().getCoordinates()[tile.xGrid()][tile.yGrid()]);
-            draw();
-
-            Coordinates c = game.getSelected();
-            if (c != null)
-                mark(gameBoard.getTile(c.getX(), c.getY()));
-
-            comment.setText(game.getComment());
+            boolean endTurn = game.checkPiece(game.getBoardState().getCoordinates()[tile.xGrid()][tile.yGrid()]);
+            updateGUI();
+            new Thread(() -> {
+                if (endTurn) {
+                    game.turn();
+                    updateGUI();
+                }
+            }).start();
         }
+    }
+
+    public void updateGUI() {
+        draw();
+
+        Coordinates c = game.getSelected();
+        if (c != null)
+            mark(gameBoard.getTile(c.getX(), c.getY()));
+
+        comment.setText(game.getComment());
     }
 }
 

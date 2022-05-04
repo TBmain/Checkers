@@ -19,10 +19,11 @@ public class Game {
         noProgress = 0;
         active = true;
         ai = new AI();
-        turn();
     }
 
-    public void checkPiece(Coordinates c) {
+    public boolean checkPiece(Coordinates c) {
+        if (!Settings.TWO_PLAYERS && boardState.getTurn() == ai.getPlayer())
+            return false;
         if (boardState.getBoard()[c.getX()][c.getY()] != null) {
             if (checkOwnPiece(c))
                 isAvailable(c);
@@ -30,7 +31,8 @@ public class Game {
                 comment = Comment.NOT_OWN_PIECE;
         }
         else if (selected != null)
-            finishMove(c);
+            return finishMove(c);
+        return false;
     }
 
     private boolean checkOwnPiece(Coordinates c) {
@@ -50,21 +52,22 @@ public class Game {
             comment = Comment.NOT_AVAILABLE;
     }
 
-    private void finishMove(Coordinates c) {
+    private boolean finishMove(Coordinates c) {
         if (possibleMoves.contains(c)) {
             possibleMoves = boardState.move(selected, c);
             available.clear();
             selected = c;
             if (possibleMoves.size() == 0) {
                 if (noProgressMoves(c))
-                    return;
+                    return false;
                 selected = null;
                 comment = boardState.nextTurn();
-                turn();
+                return true;
             }
             else available.add(selected);
         }
         else comment = Comment.NOT_POSSIBLE;
+        return false;
     }
 
     private void gameOver(Player winner) {
@@ -89,7 +92,7 @@ public class Game {
         return false;
     }
 
-    private void turn() {
+    public void turn() {
         if (available.setAvailable(boardState))
             gameOver(boardState.getTurn().getOpposite());
         else if (isAITurn()) {

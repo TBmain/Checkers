@@ -251,7 +251,7 @@ public class BoardState {
         return results;
     }
 
-    private void printBoard() {
+    public void printBoard() {
         String shape;
         for (int x = 0; x < 8; x++) {
             System.out.println();
