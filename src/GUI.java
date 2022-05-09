@@ -160,9 +160,9 @@ public class GUI extends JFrame implements ActionListener {
         restart.addActionListener(e -> start());
         undo.addActionListener(e -> System.out.println("game.undo()"));
         rules.addActionListener(e ->
-                JOptionPane.showMessageDialog(null, "", "Rules", JOptionPane.PLAIN_MESSAGE));
+                JOptionPane.showMessageDialog(null, Info.RULES, "Rules", JOptionPane.PLAIN_MESSAGE));
         credits.addActionListener(e ->
-                JOptionPane.showMessageDialog(null, "", "Credits", JOptionPane.PLAIN_MESSAGE));
+                JOptionPane.showMessageDialog(null, Info.CREDITS, "Credits", JOptionPane.PLAIN_MESSAGE));
         getContentPane().add(menu);
     }
 
