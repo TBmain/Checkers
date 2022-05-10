@@ -6,6 +6,8 @@ public class Available extends ArrayList<Coordinates> {
     }
 
     public boolean setAvailable(BoardState boardState) {
+        if (boardState.tie())
+            return false;
         PieceType[][] board = boardState.getBoard();
         for (int x = 0; x < 8; x++) {
             for (int y = 0; y < 8; y++) {

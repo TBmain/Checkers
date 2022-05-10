@@ -79,6 +79,8 @@ public class AI {
             return Integer.MIN_VALUE;
         if (node.getPieceCount(player.getOpposite()) == 0)
             return Integer.MAX_VALUE;
+        if (node.tie())
+            return 0;
         return node.getPieceCount(player) - node.getPieceCount(player.getOpposite());
     }
 

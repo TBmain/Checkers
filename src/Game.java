@@ -6,7 +6,6 @@ public class Game {
     private ArrayList<Coordinates> possibleMoves;
     private Coordinates selected;
     private Comment comment;
-    private int noProgress;
     private boolean active;
     private AI ai;
 
@@ -16,7 +15,6 @@ public class Game {
         possibleMoves = new ArrayList<>();
         selected = null;
         comment = Comment.WHITE;
-        noProgress = 0;
         active = true;
         ai = new AI();
     }
@@ -58,8 +56,11 @@ public class Game {
             available.clear();
             selected = c;
             if (possibleMoves.size() == 0) {
-                if (noProgressMoves(c))
+                boardState.updateNoProgress(selected);
+                if (boardState.tie()) {
+                    gameOver(null);
                     return false;
+                }
                 selected = null;
                 comment = boardState.nextTurn();
                 return true;
@@ -78,18 +79,6 @@ public class Game {
         else
             comment = Comment.BLACK_WON;
         active = false;
-    }
-
-    private boolean noProgressMoves(Coordinates c) {
-        if (boardState.getBoard()[c.getX()][c.getY()].isKing() && !boardState.getJump()) {
-            if (++noProgress == 15) {
-                gameOver(null);
-                return true;
-            }
-        }
-        else
-            noProgress = 0;
-        return false;
     }
 
     public void turn() {

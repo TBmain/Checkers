@@ -7,6 +7,7 @@ public class BoardState {
     private int whiteCount;
     private int blackCount;
     private ArrayList<Coordinates> lastMove;
+    private int noProgress;
     private static Coordinates[][] coordinates = new Coordinates[8][8];
 
     public BoardState() {
@@ -16,6 +17,7 @@ public class BoardState {
         whiteCount = 12;
         blackCount = 12;
         lastMove = new ArrayList<>();
+        noProgress = 0;
         fillBoard();
         fillCoordinates();
     }
@@ -29,6 +31,7 @@ public class BoardState {
         whiteCount = boardState.whiteCount;
         blackCount = boardState.blackCount;
         lastMove = new ArrayList<>(boardState.lastMove);
+        noProgress = boardState.noProgress;
     }
 
     private void fillBoard() {
@@ -55,7 +58,7 @@ public class BoardState {
 
         int x = c.getX();
         int y = c.getY();
-        if (getBoard()[x][y].isKing()) {
+        if (board[x][y].isKing()) {
             possibleMoves.addAll(getKingMoves(c));
         }
         else {
@@ -98,35 +101,35 @@ public class BoardState {
             return null;
 
         if (jump) {
-            if (getBoard()[x][y].isKing()) {
+            if (board[x][y].isKing()) {
                 int i = 1;
-                while (checkIndex(x + i * dx, y + i * dy) && getBoard()[x + i * dx][y + i * dy] == null)
+                while (checkIndex(x + i * dx, y + i * dy) && board[x + i * dx][y + i * dy] == null)
                     i++;
                 if (checkIndex(x + i * dx, y + i * dy)) {
-                    if (getBoard()[x + i * dx][y + i * dy].getPlayer() == getTurn().getOpposite()) {
-                        while (checkIndex(x + (i + 1) * dx, y + (i + 1) * dy) && getBoard()[x + (i + 1) * dx][y + (i + 1) * dy] ==  null) {
+                    if (board[x + i * dx][y + i * dy].getPlayer() == getTurn().getOpposite()) {
+                        while (checkIndex(x + (i + 1) * dx, y + (i + 1) * dy) && board[x + (i + 1) * dx][y + (i + 1) * dy] ==  null) {
                             possibleMoves.add(getCoordinates()[x + (i + 1) * dx][y + (i + 1) * dy]);
                             i++;
                         }
                     }
                 }
             }
-            else if (getBoard()[x + dx][y + dy] != null) {
-                if (getBoard()[x + dx][y + dy].getPlayer() == getTurn().getOpposite()) {
-                    if (checkIndex(x + 2 * dx, y + 2 * dy) && getBoard()[x + 2 * dx][y + 2 * dy] == null)
+            else if (board[x + dx][y + dy] != null) {
+                if (board[x + dx][y + dy].getPlayer() == getTurn().getOpposite()) {
+                    if (checkIndex(x + 2 * dx, y + 2 * dy) && board[x + 2 * dx][y + 2 * dy] == null)
                         possibleMoves.add(getCoordinates()[x + 2 * dx][y + 2 * dy]);
                 }
             }
         }
-        else if (getBoard()[x][y].isKing()) {
+        else if (board[x][y].isKing()) {
             int i = 1;
-            while (checkIndex(x + i * dx, y + i * dy) && getBoard()[x + i * dx][y + i * dy] == null) {
+            while (checkIndex(x + i * dx, y + i * dy) && board[x + i * dx][y + i * dy] == null) {
                 possibleMoves.add(getCoordinates()[x + i * dx][y + i * dy]);
                 i++;
             }
         }
         else {
-            if (getBoard()[x + dx][y + dy] == null)
+            if (board[x + dx][y + dy] == null)
                 possibleMoves.add(getCoordinates()[x + dx][y + dy]);
         }
         return possibleMoves;
@@ -136,8 +139,8 @@ public class BoardState {
         lastMove.clear();
         lastMove.add(from);
         lastMove.add(to);
-        getBoard()[to.getX()][to.getY()] = getBoard()[from.getX()][from.getY()];
-        getBoard()[from.getX()][from.getY()] = null;
+        board[to.getX()][to.getY()] = board[from.getX()][from.getY()];
+        board[from.getX()][from.getY()] = null;
 
         makeKing(to);
 
@@ -169,14 +172,14 @@ public class BoardState {
     }
 
     private void makeKing(Coordinates c) {
-        PieceType piece = getBoard()[c.getX()][c.getY()];
+        PieceType piece = board[c.getX()][c.getY()];
         if (!piece.isKing()) {
             if (piece.getPlayer() == Player.WHITE && c.getY() == ((Settings.REVERSE) ? 7 : 0)) {
-                getBoard()[c.getX()][c.getY()] = piece.setKing();
+                board[c.getX()][c.getY()] = piece.setKing();
                 whiteCount += 2;
             }
             else if (piece.getPlayer() == Player.BLACK && c.getY() == ((Settings.REVERSE) ? 0 : 7)) {
-                getBoard()[c.getX()][c.getY()] = piece.setKing();
+                board[c.getX()][c.getY()] = piece.setKing();
                 blackCount += 2;
             }
         }
@@ -211,6 +214,18 @@ public class BoardState {
         return coordinates;
     }
 
+    public void updateNoProgress(Coordinates c) {
+        if (board[c.getX()][c.getY()].isKing() && !getJump()) {
+            noProgress++;
+        }
+        else
+            noProgress = 0;
+    }
+
+    public boolean tie() {
+        return noProgress == 15;
+    }
+
     public Comment nextTurn() {
         turn = turn.getOpposite();
         jump = true;
@@ -239,6 +254,7 @@ public class BoardState {
         ArrayList<Coordinates> comboMoves = move(from, to);
 
         if (comboMoves.size() == 0) {
+            updateNoProgress(to);
             nextTurn();
             results.add(this);
         }
