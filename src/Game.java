@@ -106,6 +106,9 @@ public class Game {
         if (!history.isEmpty()) {
             boardState = history.pop();
             available.clear();
+            possibleMoves.clear();
+            selected = null;
+            comment = (boardState.getTurn() == Player.WHITE) ? Comment.WHITE : Comment.BLACK;
             available.setAvailable(boardState);
         }
     }
