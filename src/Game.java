@@ -87,6 +87,10 @@ public class Game {
         else if (isAITurn()) {
             try { Thread.sleep(500); } catch (InterruptedException e) {}
             boardState = ai.move(boardState);
+            if (boardState.tie()) {
+                gameOver(null);
+                return;
+            }
             comment = (boardState.getTurn() == Player.WHITE) ? Comment.WHITE : Comment.BLACK;
             available.clear();
             if (available.setAvailable(boardState))
