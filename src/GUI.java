@@ -2,7 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -158,7 +157,10 @@ public class GUI extends JFrame implements ActionListener {
         info.add(credits);
 
         restart.addActionListener(e -> start());
-        undo.addActionListener(e -> System.out.println("game.undo()"));
+        undo.addActionListener(e -> {
+            game.undo();
+            updateGUI();
+        });
         rules.addActionListener(e ->
                 JOptionPane.showMessageDialog(null, Info.RULES, "Rules", JOptionPane.PLAIN_MESSAGE));
         credits.addActionListener(e ->

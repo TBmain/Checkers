@@ -177,10 +177,12 @@ public class BoardState {
             if (piece.getPlayer() == Player.WHITE && c.getY() == ((Settings.REVERSE) ? 7 : 0)) {
                 board[c.getX()][c.getY()] = piece.setKing();
                 whiteCount += 2;
+                noProgress = 0;
             }
             else if (piece.getPlayer() == Player.BLACK && c.getY() == ((Settings.REVERSE) ? 0 : 7)) {
                 board[c.getX()][c.getY()] = piece.setKing();
                 blackCount += 2;
+                noProgress = 0;
             }
         }
     }

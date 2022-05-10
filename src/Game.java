@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class Game {
     private BoardState boardState;
@@ -7,6 +8,7 @@ public class Game {
     private Coordinates selected;
     private Comment comment;
     private boolean active;
+    private Stack<BoardState> history;
     private AI ai;
 
     public Game() {
@@ -16,6 +18,7 @@ public class Game {
         selected = null;
         comment = Comment.WHITE;
         active = true;
+        history = new Stack<>();
         ai = new AI();
     }
 
@@ -52,6 +55,7 @@ public class Game {
 
     private boolean finishMove(Coordinates c) {
         if (possibleMoves.contains(c)) {
+            history.push(new BoardState(boardState));
             possibleMoves = boardState.move(selected, c);
             available.clear();
             selected = c;
@@ -95,6 +99,14 @@ public class Game {
             available.clear();
             if (available.setAvailable(boardState))
                 gameOver(boardState.getTurn().getOpposite());
+        }
+    }
+
+    public void undo() {
+        if (!history.isEmpty()) {
+            boardState = history.pop();
+            available.clear();
+            available.setAvailable(boardState);
         }
     }
 
