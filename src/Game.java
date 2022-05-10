@@ -90,7 +90,10 @@ public class Game {
             gameOver(boardState.getTurn().getOpposite());
         else if (isAITurn()) {
             try { Thread.sleep(500); } catch (InterruptedException e) {}
-            boardState = ai.move(boardState);
+            BoardState temp = ai.move(boardState);
+            if (Thread.currentThread().isInterrupted())
+                return;
+            boardState = temp;
             if (boardState.tie()) {
                 gameOver(null);
                 return;

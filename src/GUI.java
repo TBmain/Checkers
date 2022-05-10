@@ -23,6 +23,7 @@ public class GUI extends JFrame implements ActionListener {
     private GameBoard gameBoard;
     private ArrayList<Coordinates> possibleMoves;
     private JTextArea comment;
+    private Thread t;
 
     public GUI() {
         setTitle("Checkers Project - Nadav Barak");
@@ -40,10 +41,11 @@ public class GUI extends JFrame implements ActionListener {
         System.out.println("Frame loaded");
         drawPieces();
         System.out.println("Pieces drawn");
-        new Thread(() -> {
+        t = new Thread(() -> {
             game.turn();
             updateGUI();
-        }).start();
+        });
+        t.start();
     }
 
     private boolean settingsPopup() {
@@ -158,6 +160,7 @@ public class GUI extends JFrame implements ActionListener {
 
         restart.addActionListener(e -> start());
         undo.addActionListener(e -> {
+            t.interrupt();
             game.undo();
             updateGUI();
         });
@@ -271,12 +274,13 @@ public class GUI extends JFrame implements ActionListener {
             Tile tile = (Tile) e.getSource();
             boolean endTurn = game.checkPiece(game.getBoardState().getCoordinates()[tile.xGrid()][tile.yGrid()]);
             updateGUI();
-            new Thread(() -> {
-                if (endTurn) {
+            if (endTurn) {
+                t = new Thread(() -> {
                     game.turn();
                     updateGUI();
-                }
-            }).start();
+                });
+                t.start();
+            }
         }
     }
 
