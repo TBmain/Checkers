@@ -14,7 +14,7 @@ public class AI {
         HashMap<Integer, Integer> difficulty = new HashMap<>() {{
            put(1, 1);
            put(2, 3);
-           put(3, 7);
+           put(3, 8);
            put(4, 11);
         }};
         return difficulty.get(lvl);
