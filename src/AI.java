@@ -20,7 +20,7 @@ public class AI {
         return difficulty.get(lvl);
     }
 
-    public BoardState move(BoardState boardState) { // TODO random AI for now
+    public BoardState move(BoardState boardState) {
         ArrayList<BoardState> states = boardState.getSuccessors();
         return calcMoves(states);
     }
