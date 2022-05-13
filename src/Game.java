@@ -107,6 +107,7 @@ public class Game {
 
     public void undo() {
         if (!history.isEmpty()) {
+            active = true;
             boardState = history.pop();
             available.clear();
             possibleMoves.clear();
